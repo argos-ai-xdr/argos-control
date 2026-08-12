@@ -1,0 +1,23 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  # Elegir el workflow reutilizable según el stack del repositorio y borrar los demás.
+  # Ver argos-control/.github/workflows/ para la lista completa.
+
+  python-ci:
+    uses: argos-ai-xdr/argos-control/.github/workflows/reusable-python-ci.yaml@main
+    with:
+      working-directory: "." # ajustar si el paquete no está en la raíz
+
+  # node-ci:
+  #   uses: argos-ai-xdr/argos-control/.github/workflows/reusable-node-ci.yaml@main
+  #   with:
+  #     working-directory: "web"
+
+  # iac-ci:
+  #   uses: argos-ai-xdr/argos-control/.github/workflows/reusable-iac-ci.yaml@main

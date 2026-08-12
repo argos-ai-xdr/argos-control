@@ -1,0 +1,54 @@
+# Backlog técnico estimado — documento maestro v0.5, sección 6.8.
+# Story points relativos de Fibonacci; NO equivalen a horas. Una historia de 13 SP
+# debe dividirse o tratarse como integración controlada. El backlog contiene 211 SP
+# candidatos, no un compromiso: 180 SP P0 protegidos + 31 SP P1 no comprometidos
+# (sección 7.3). El compromiso final se ratifica al cierre de S2 con velocidad observada.
+#
+# repo: mejor esfuerzo de asignación a partir de las "Primeras tareas" de cada
+# repositorio; "multi" cuando la historia cruza más de un repositorio (ver ADR-014).
+
+epics:
+  E1: {name: Gobierno, objective: "Repositorios, releases, ADR, OSS y supply chain", result: "Baseline reproducible, SBOM y Scope Gate"}
+  E2: {name: Datos, objective: "Schemas, fixtures, adapters y contratos", result: "Contratos v1 y producer/consumer tests"}
+  E3: {name: Evaluación, objective: "Harness No-RAG, métricas y regresión", result: "AC01-AC14 automatizados y reportables"}
+  E4: {name: Cyber, objective: "Cyber-range, MCP sandbox, exposición y rutas", result: "C-07 seguro, reproducible y aislado"}
+  E5: {name: XDR, objective: "Telemetría, correlación, MISP y DMZ", result: "C-06/C-08 con hechos y evidencia real de laboratorio"}
+  E6: {name: Respuesta, objective: "LangGraph, OPA, Shuffle, HITL y rollback", result: "Una contención reversible aprobada y verificada"}
+  E7: {name: Operación, objective: "SmartOps, evidence store y SOC handover", result: "Experiencia del analista y paquete auditable"}
+  E8: {name: Integración, objective: "Resiliencia, hardening, aceptación y demo", result: "ARGOS-CYB-01 completo y release candidate"}
+
+totals:
+  candidate_sp: 211
+  p0_sp: 180
+  p1_sp: 31
+  note: "P1 no entra en el compromiso inicial; regla de pull para P1 en governance/gates/gates.md"
+
+items:
+  - {id: ARG-001, epic: E1, sprint: S1, priority: P0, sp: 5,  story: "Crear repos, owners, branches, templates ADR y release manifest", dependencies: [], repo: argos-control}
+  - {id: ARG-002, epic: E1, sprint: S1, priority: P0, sp: 8,  story: "Pipeline SBOM, firma, scan de licencia y policy de imágenes", dependencies: [ARG-001], repo: argos-platform}
+  - {id: ARG-003, epic: E4, sprint: S1, priority: P0, sp: 8,  story: "Cyber-range base, namespaces, default-deny, reset y kill switch", dependencies: [ARG-001], repo: argos-platform}
+  - {id: ARG-004, epic: E2, sprint: S2, priority: P0, sp: 8,  story: "Publicar envelope y contratos Asset/Vulnerability/SecurityEvent", dependencies: [ARG-001], repo: argos-contracts-scenarios}
+  - {id: ARG-005, epic: E2, sprint: S2, priority: P0, sp: 5,  story: "Pipeline F01-F09, snapshots, hashes y data manifest", dependencies: [ARG-004], repo: argos-contracts-scenarios}
+  - {id: ARG-006, epic: E3, sprint: S2, priority: P0, sp: 8,  story: "Harness, thresholds, report y producer/consumer tests", dependencies: [ARG-004, ARG-005], repo: argos-validation}
+  - {id: ARG-007, epic: E5, sprint: S3, priority: P0, sp: 5,  story: "Adapter inventario CMAM/NetBox/KAudit y reconciliación", dependencies: [ARG-004], repo: argos-core}
+  - {id: ARG-008, epic: E5, sprint: S3, priority: P0, sp: 8,  story: "Ingesta SBOM/Trivy/OpenVAS y normalización CVE/PURL", dependencies: [ARG-004, ARG-005], repo: argos-core}
+  - {id: ARG-009, epic: E5, sprint: S3, priority: P0, sp: 8,  story: "Priorización ESP+exposición+KEV+EPSS con evidencia", dependencies: [ARG-007, ARG-008], repo: argos-core}
+  - {id: ARG-010, epic: E5, sprint: S3, priority: P1, sp: 5,  story: "Drift as-designed/as-built y control de cambio", dependencies: [ARG-007], repo: argos-core}
+  - {id: ARG-011, epic: E4, sprint: S4, priority: P0, sp: 8,  story: "Descubrimiento de exposición y grafo de red/RBAC", dependencies: [ARG-003, ARG-007], repo: argos-cyber-tools}
+  - {id: ARG-012, epic: E4, sprint: S4, priority: P0, sp: 8,  story: "Detección de privilegio excesivo y ruta de escalada", dependencies: [ARG-011], repo: argos-cyber-tools}
+  - {id: ARG-013, epic: E4, sprint: S4, priority: P0, sp: 8,  story: "Validación attack path con emulación controlada", dependencies: [ARG-012], repo: argos-cyber-tools}
+  - {id: ARG-014, epic: E4, sprint: S4, priority: P1, sp: 5,  story: "Blast radius y simulación de dependencias", dependencies: [ARG-011, ARG-013], repo: argos-cyber-tools}
+  - {id: ARG-015, epic: E5, sprint: S5, priority: P0, sp: 8,  story: "Ingesta Wazuh/Falco/Hubble/Audit con NATS y OTel", dependencies: [ARG-004, ARG-003], repo: argos-core}
+  - {id: ARG-016, epic: E5, sprint: S5, priority: P0, sp: 8,  story: "MISP y snapshots ATT&CK/KEV/EPSS; correlación Incident v1", dependencies: [ARG-005, ARG-015], repo: argos-core}
+  - {id: ARG-017, epic: E5, sprint: S5, priority: P0, sp: 8,  story: "Triaje, timeline y ATT&CK mapping con ground truth", dependencies: [ARG-016], repo: argos-core}
+  - {id: ARG-018, epic: E5, sprint: S5, priority: P1, sp: 5,  story: "Detector DMZ basado en reglas/baseline y evidencia", dependencies: [ARG-015], repo: argos-core}
+  - {id: ARG-019, epic: E6, sprint: S6, priority: P0, sp: 8,  story: "Grafo LangGraph y Recommendation v1 con fallback determinista", dependencies: [ARG-017], repo: argos-core}
+  - {id: ARG-020, epic: E6, sprint: S6, priority: P0, sp: 8,  story: "OPA policy gate, approval API, TTL, firma y anti-replay", dependencies: [ARG-002, ARG-019], repo: argos-cyber-tools}
+  - {id: ARG-021, epic: E6, sprint: S6, priority: P0, sp: 8,  story: "Shuffle dry-run/execute/verify/rollback idempotente", dependencies: [ARG-003, ARG-020], repo: argos-cyber-tools}
+  - {id: ARG-022, epic: E7, sprint: S6, priority: P1, sp: 8,  story: "SmartOps incident/approval view y SOC handover emulado", dependencies: [ARG-017, ARG-020], repo: argos-smartops}
+  - {id: ARG-023, epic: E8, sprint: S7, priority: P0, sp: 13, story: "Integración CP00-CP13 y trazabilidad end-to-end", dependencies: [ARG-009, ARG-013, ARG-021], repo: multi}
+  - {id: ARG-024, epic: E3, sprint: S7, priority: P0, sp: 8,  story: "Suite adversarial F09, regresión y expected blocks", dependencies: [ARG-006, ARG-023], repo: argos-validation}
+  - {id: ARG-025, epic: E8, sprint: S7, priority: P0, sp: 8,  story: "Backup/restore, retry, interrupción e idempotencia", dependencies: [ARG-023], repo: argos-platform}
+  - {id: ARG-026, epic: E7, sprint: S7, priority: P1, sp: 8,  story: "Evidence store, dashboards y paquete firmado", dependencies: [ARG-015, ARG-023], repo: multi}
+  - {id: ARG-027, epic: E8, sprint: S8, priority: P0, sp: 8,  story: "Automatizar AC01-AC14, DRR y release candidate", dependencies: [ARG-024, ARG-025, ARG-026], repo: argos-validation}
+  - {id: ARG-028, epic: E8, sprint: S8, priority: P0, sp: 8,  story: "Ensayo final, demo, as-built, runbooks y handover", dependencies: [ARG-027], repo: multi}

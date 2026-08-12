@@ -1,0 +1,10 @@
+name: "{{REPO_NAME}}"
+domain: "{{DOMAIN}}" # p. ej. xdr-runtime, platform-infra, cyber-tooling, evaluation, operations
+criticality: "{{CRITICALITY}}" # low | medium | high | critical
+owner: "{{OWNER_ROLE}}" # rol RACI, ver argos-control/governance/raci/raci.md
+backup_owner: "{{BACKUP_OWNER_ROLE}}"
+classification: internal
+lifecycle: active
+artifacts: []
+dependencies: [] # otros repos de argos-ai-xdr de los que depende (ver ADR-014)
+proposal_source: ARGOS_Propuesta_Tecnica_Maestro_Vivo_v0.5.docx

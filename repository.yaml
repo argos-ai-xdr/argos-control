@@ -1,0 +1,21 @@
+name: argos-control
+domain: governance
+criticality: critical
+owner: poa-architecture
+backup_owner: delivery-lead
+classification: internal
+lifecycle: active
+artifacts:
+  - adr
+  - release-manifests
+  - reusable-workflows
+  - governance-policies
+dependencies: []
+consumed_by:
+  - argos-platform
+  - argos-contracts-scenarios
+  - argos-core
+  - argos-cyber-tools
+  - argos-validation
+  - argos-smartops
+proposal_source: ARGOS_Propuesta_Tecnica_Maestro_Vivo_v0.5.docx

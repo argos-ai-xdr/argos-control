@@ -1,0 +1,107 @@
+# Matriz de compatibilidad de contratos v1
+# Fuente: documento maestro v0.5, sección 6.5. Definidos formalmente en argos-contracts-scenarios/schemas/.
+# Reglas de evolución: PATCH = corrige documentación/restricciones sin cambiar payload;
+# MINOR = añade campos opcionales; MAJOR = rompe compatibilidad y exige migrador + fixtures duales.
+
+rules:
+  patch: "Corrige documentación o restricciones sin cambiar el payload."
+  minor: "Añade campos opcionales."
+  major: "Rompe compatibilidad; exige migrador, análisis de impacto y fixtures duales."
+  ids: "UUID/ULID no reutilizables."
+  timestamps: "UTC, RFC 3339."
+  hashes: "SHA-256."
+  prohibited: ["PII", "secretos", "tokens", "prompts sensibles", "chain-of-thought"]
+
+contracts:
+  - name: AssetSnapshot
+    version: "1.0.0"
+    producer_to_consumer: "CMAM/NetBox/KAudit -> risk-engine"
+    transport: "asset.snapshot.v1 / JSON"
+    gate: "Upsert idempotente; cobertura AC02"
+    ac: [AC02]
+    owned_by: argos-contracts-scenarios
+    consumers: [argos-core]
+
+  - name: VulnerabilityFinding
+    version: "1.0.0"
+    producer_to_consumer: "Trivy/OpenVAS/VMT -> risk-engine"
+    transport: "vulnerability.finding.v1"
+    gate: "CPE/PURL, CVE y source_ref obligatorios; AC03"
+    ac: [AC03]
+    owned_by: argos-contracts-scenarios
+    consumers: [argos-core]
+
+  - name: SecurityEvent
+    version: "1.0.0"
+    producer_to_consumer: "Wazuh/Falco/Hubble/Audit -> correlator"
+    transport: "security.event.v1 / NDJSON"
+    gate: "Envelope OCSF-aligned; native_ref; AC06"
+    ac: [AC06]
+    owned_by: argos-contracts-scenarios
+    consumers: [argos-core]
+    adr: ADR-001
+
+  - name: Incident
+    version: "1.0.0"
+    producer_to_consumer: "correlator -> LangGraph/SmartOps"
+    transport: "incident.v1 / API+event"
+    gate: "Timeline y evidence_refs inmutables; AC07"
+    ac: [AC07]
+    owned_by: argos-contracts-scenarios
+    consumers: [argos-core, argos-smartops]
+
+  - name: Recommendation
+    version: "1.0.0"
+    producer_to_consumer: "LangGraph -> OPA/SmartOps"
+    transport: "recommendation.v1 / API"
+    gate: "Alternativas, incertidumbre y rollback; AC08-AC09"
+    ac: [AC08, AC09]
+    owned_by: argos-contracts-scenarios
+    consumers: [argos-cyber-tools, argos-smartops]
+
+  - name: PolicyDecision
+    version: "1.0.0"
+    producer_to_consumer: "OPA -> agent/SOAR"
+    transport: "policy.decision.v1"
+    gate: "DENY, ALLOW_DRY_RUN o APPROVAL_REQUIRED; policy hash"
+    ac: []
+    owned_by: argos-contracts-scenarios
+    consumers: [argos-core, argos-cyber-tools]
+    adr: ADR-005
+
+  - name: Approval
+    version: "1.0.0"
+    producer_to_consumer: "SmartOps -> Shuffle"
+    transport: "approval.v1 / signed API"
+    gate: "Hash de acción, rol, TTL y anti-replay; AC10"
+    ac: [AC10]
+    owned_by: argos-contracts-scenarios
+    consumers: [argos-cyber-tools]
+
+  - name: ActionResult
+    version: "1.0.0"
+    producer_to_consumer: "Shuffle/tool -> SmartOps/evidence"
+    transport: "action.result.v1"
+    gate: "Idempotency key, changed_resources y verification; AC11-AC13"
+    ac: [AC11, AC12, AC13]
+    owned_by: argos-contracts-scenarios
+    consumers: [argos-smartops, argos-core]
+
+  - name: EvidenceManifest
+    version: "1.0.0"
+    producer_to_consumer: "evidence-writer -> release gate"
+    transport: "manifest.v1 / signed JSON"
+    gate: "sha256 completo, clasificación y retención; AC14"
+    ac: [AC14]
+    owned_by: argos-contracts-scenarios
+    consumers: [argos-control, argos-validation]
+    adr: ADR-006
+
+  - name: SOCHandover
+    version: "1.0.0"
+    producer_to_consumer: "SOC adapter -> SOC"
+    transport: "soc.handover.v1 / STIX-TAXII/JSON"
+    gate: "TLP, allowlist de campos, ACK y deduplicación; AC14"
+    ac: [AC14]
+    owned_by: argos-contracts-scenarios
+    consumers: [argos-smartops]

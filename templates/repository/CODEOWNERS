@@ -1,0 +1,6 @@
+# CODEOWNERS — sustituir los roles por handles de GitHub durante S1.
+# Roles disponibles: ver argos-control/governance/raci/raci.md
+# (poa-architecture, delivery-lead, platform-sre, xdr-data, cyber-range,
+#  ai-evaluation, soar-mcp, smartops, soc-approver, qa-security-observer)
+
+*    @delivery-lead @{{PRIMARY_OWNER_ROLE}}

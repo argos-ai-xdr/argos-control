@@ -1,0 +1,68 @@
+name: Historia (ARG-###)
+description: Nueva historia de backlog para cualquier repositorio de argos-ai-xdr
+title: "ARG-XXX: "
+labels: ["story"]
+body:
+  - type: input
+    id: epic
+    attributes:
+      label: Épica
+      description: "E1 Gobierno, E2 Datos, E3 Evaluación, E4 Cyber, E5 XDR, E6 Respuesta, E7 Operación, E8 Integración"
+    validations:
+      required: true
+  - type: input
+    id: sprint
+    attributes:
+      label: Sprint candidato
+      description: "S1-S8"
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioridad
+      options: ["P0", "P1"]
+    validations:
+      required: true
+  - type: input
+    id: story-points
+    attributes:
+      label: Estimación (SP, Fibonacci)
+      description: "Si > 8 SP, dividir la historia salvo integración explícita"
+    validations:
+      required: true
+  - type: input
+    id: dependencies
+    attributes:
+      label: Dependencias (otras ARG-### o DEP-##)
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objetivo / resultado
+    validations:
+      required: true
+  - type: textarea
+    id: case-checkpoint
+    attributes:
+      label: Caso C-06/C-07/C-08, checkpoint CP, fixture F y criterio AC vinculados
+      description: Dejar en blanco solo si la historia no pertenece al escenario ARGOS-CYB-01
+  - type: textarea
+    id: dor
+    attributes:
+      label: Definition of Ready
+      value: |
+        - [ ] ID, owner, objetivo, prioridad, estimación y Definition of Done acordados
+        - [ ] Inputs/outputs y schema_version definidos; fixtures positivos/negativos/adversariales disponibles
+        - [ ] Dependencias, entorno, permisos, clasificación de datos, egress y secretos identificados (sin credenciales compartidas)
+        - [ ] Amenazas y límites: target allowlist, modo read-only/dry-run/execute, impacto máximo, timeout, kill switch, rollback
+        - [ ] Pruebas (unit/integration/contract/security) y evidencia especificadas; thresholds conocidos
+        - [ ] Componentes OSS revisados: licencia, versión/digest, SBOM, CVEs críticos, owner, sustituto
+        - [ ] Plan de observabilidad: run_id, logs, traces, metrics, policy decision, hashes, retención
+    validations:
+      required: true
+  - type: textarea
+    id: dod
+    attributes:
+      label: Definition of Done
+    validations:
+      required: true

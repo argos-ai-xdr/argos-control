@@ -1,0 +1,30 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.mypy_cache/
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+build/
+
+# Secrets and local overrides — never commit
+.env
+.env.*
+*.local.yaml
+secrets/
+
+# Evidencia/datasets reales — deben vivir en Ceph RGW / OCI artifacts, no en Git (ADR-016)
+evidence/
+reports/generated/

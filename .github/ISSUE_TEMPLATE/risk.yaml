@@ -1,0 +1,55 @@
+name: Riesgo
+description: Registrar un riesgo para el risk register (governance/risks/)
+title: "RISK-XXX: "
+labels: ["risk"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripción del riesgo
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Categoría
+      options:
+        - "Dependencia externa (DEP-##)"
+        - "Seguridad"
+        - "Capacidad/FTE"
+        - "Arquitectura/técnico"
+        - "Datos/licencia"
+        - "Calendario"
+    validations:
+      required: true
+  - type: dropdown
+    id: likelihood
+    attributes:
+      label: Probabilidad
+      options: ["Baja", "Media", "Alta"]
+    validations:
+      required: true
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impacto
+      options: ["Bajo", "Medio", "Alto", "Crítico (bloquea un gate)"]
+    validations:
+      required: true
+  - type: textarea
+    id: fallback
+    attributes:
+      label: Fallback soberano / mitigación
+      description: Si el riesgo corresponde a una DEP-## del plan, referenciar su fallback documentado
+    validations:
+      required: true
+  - type: input
+    id: owner
+    attributes:
+      label: Owner del riesgo
+    validations:
+      required: true
+  - type: input
+    id: review-date
+    attributes:
+      label: Próxima revisión (Security & Change Board semanal)

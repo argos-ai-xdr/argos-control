@@ -1,0 +1,61 @@
+name: reusable-sbom-sign
+
+on:
+  workflow_call:
+    inputs:
+      image-ref:
+        description: "Imagen por digest, p. ej. registry/argos/normalizer@sha256:..."
+        type: string
+        required: true
+      sbom-format:
+        type: string
+        default: "cyclonedx-json" # alternativa: spdx-json
+    secrets:
+      registry-username:
+        required: true
+      registry-password:
+        required: true
+
+jobs:
+  sbom-and-sign:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # requerido para cosign keyless (OIDC)
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ inputs.image-ref }}
+          username: ${{ secrets.registry-username }}
+          password: ${{ secrets.registry-password }}
+
+      - uses: sigstore/cosign-installer@v3
+
+      - uses: anchore/sbom-action@v0
+        with:
+          image: ${{ inputs.image-ref }}
+          format: ${{ inputs.sbom-format }}
+          output-file: sbom.json
+
+      - name: Firmar la imagen (keyless, identidad OIDC de GitHub Actions)
+        run: cosign sign --yes "${{ inputs.image-ref }}"
+
+      - name: Adjuntar el SBOM como attestation firmada
+        run: cosign attest --yes --predicate sbom.json --type ${{ inputs.sbom-format == 'spdx-json' && 'spdx' || 'cyclonedx' }} "${{ inputs.image-ref }}"
+
+      - name: Verificar firma y attestation (fail-closed)
+        run: |
+          cosign verify "${{ inputs.image-ref }}" \
+            --certificate-identity-regexp "^https://github.com/argos-ai-xdr/" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+          cosign verify-attestation "${{ inputs.image-ref }}" \
+            --type ${{ inputs.sbom-format == 'spdx-json' && 'spdx' || 'cyclonedx' }} \
+            --certificate-identity-regexp "^https://github.com/argos-ai-xdr/" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ inputs.sbom-format }}
+          path: sbom.json

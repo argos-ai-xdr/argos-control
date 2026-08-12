@@ -1,0 +1,100 @@
+# Baseline de componentes open source P0
+# Fuente: documento maestro v0.5, sección 6.4. Toda adición fuera de esta lista requiere ADR-010
+# (valor medido, licencia y coste operativo evaluados antes de incorporarse).
+
+components:
+  - capability: GitOps
+    baseline: "Argo CD + Helm/Kustomize"
+    use_in_argos_cyb_01: "Despliegue y rollback declarativo"
+    admission_condition: "Versión/digest fijados y sync protegido"
+    repo: argos-platform
+
+  - capability: Bus
+    baseline: "NATS JetStream"
+    use_in_argos_cyb_01: "Eventos internos, retry y durable consumers"
+    admission_condition: "TLS, subjects por servicio y DLQ"
+    repo: argos-platform
+    adr: ADR-002
+
+  - capability: SIEM/XDR
+    baseline: "Wazuh + OpenSearch"
+    use_in_argos_cyb_01: "Ingesta, reglas, búsqueda y correlación"
+    admission_condition: "Self-hosted; índices y mappings versionados"
+    repo: argos-platform
+
+  - capability: Runtime/network
+    baseline: "Falco + Cilium/Hubble"
+    use_in_argos_cyb_01: "Eventos runtime, flows y enforcement"
+    admission_condition: "eBPF compatible con kernel OSC"
+    repo: argos-platform
+    dependency: DEP-05
+
+  - capability: CTI
+    baseline: "MISP + ATT&CK/KEV/EPSS/CVE snapshots"
+    use_in_argos_cyb_01: "IoCs, técnicas y priorización contextual"
+    admission_condition: "Fuente, licencia, fecha y hash"
+    repo: argos-platform
+    adr: ADR-007
+
+  - capability: Vulnerability
+    baseline: "Trivy + Greenbone/OpenVAS"
+    use_in_argos_cyb_01: "SBOM y findings reproducibles"
+    admission_condition: "DB de firmas congelada para aceptación"
+    repo: argos-core
+
+  - capability: SOAR
+    baseline: "Shuffle Community"
+    use_in_argos_cyb_01: "Dry-run, HITL, execute, verify y rollback"
+    admission_condition: "Playbooks exportados y sin SaaS"
+    repo: argos-cyber-tools
+
+  - capability: "Agent orchestration"
+    baseline: "LangGraph"
+    use_in_argos_cyb_01: "Grafo con estado e interrupción HITL"
+    admission_condition: "Checkpoint soberano; salida estructurada"
+    repo: argos-core
+
+  - capability: Inference
+    baseline: "vLLM + modelo open-weight aprobado"
+    use_in_argos_cyb_01: "Resumen y recomendación controlada"
+    admission_condition: "Licencia, evaluación, cuantización y hosting OSC"
+    repo: argos-core
+    adr: ADR-008
+    dependency: DEP-06
+
+  - capability: Policy
+    baseline: "OPA + Gatekeeper"
+    use_in_argos_cyb_01: "PolicyDecision y admission control"
+    admission_condition: "Policies como código, test y firma"
+    repo: argos-cyber-tools
+    adr: ADR-005
+
+  - capability: Identity/secrets
+    baseline: "Keycloak + SPIRE + OpenBao"
+    use_in_argos_cyb_01: "OIDC, workload identity y secretos cortos"
+    admission_condition: "Rotación, audiences y scopes mínimos"
+    repo: argos-platform
+    adr: ADR-004
+
+  - capability: Observability
+    baseline: "OpenTelemetry + Prometheus/Grafana OSS"
+    use_in_argos_cyb_01: "Trazas/métricas correlacionadas por run_id"
+    admission_condition: "Sin exportadores SaaS obligatorios"
+    repo: argos-platform
+    adr: ADR-009
+
+  - capability: Evidence
+    baseline: "OpenSearch + Ceph RGW"
+    use_in_argos_cyb_01: "Búsqueda, objetos, manifests y retención"
+    admission_condition: "Cifrado, object lock si aplica y backup probado"
+    repo: argos-platform
+    adr: ADR-006
+
+optional_pi3:
+  - capability: "CTI graph"
+    baseline: "OpenCTI Community"
+    note: "Evaluable en PI3 para grafos CTI; no es requisito P0"
+
+excluded:
+  - name: "IBM X-Force"
+    reason: "Excluido del diseño (ADR-007); política open source y soberana"

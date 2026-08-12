@@ -1,0 +1,41 @@
+name: reusable-node-ci
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: Directorio del paquete Node/TypeScript (p. ej. argos-smartops/web)
+        type: string
+        default: "."
+      node-version:
+        type: string
+        default: "20"
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Type check
+        run: npm run typecheck --if-present
+
+      - name: Tests
+        run: npm test --if-present
+
+      - name: Audit de dependencias (bloqueante en alto/crítico)
+        run: npm audit --audit-level=high

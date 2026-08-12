@@ -1,0 +1,77 @@
+# Registro de riesgos — semilla inicial a partir de las dependencias críticas (DEP-01..10)
+# del documento maestro v0.5, sección 6.9. Ampliar con el issue template risk.yaml
+# a medida que el Security & Change Board (semanal) identifique riesgos nuevos.
+#
+# Ruta crítica: DEP-01/DEP-02 -> ARG-001/003/004 -> ARG-015/016/017 -> ARG-019/020/021 -> ARG-023 -> ARG-027/028.
+# Las integraciones CMAM/VMT, SmartOps y SOC externo no pertenecen a la ruta crítica gracias a sus contratos y fallbacks.
+
+risks:
+  - id: DEP-01
+    description: "Equipo/FTE y owners por WP no confirmados a tiempo"
+    deadline: "Inicio S1"
+    fallback: "Reducir P1 y WIP; un owner por componente"
+    impact_if_unmitigated: "No se puede comprometer capacidad"
+    on_critical_path: true
+
+  - id: DEP-02
+    description: "OSC, registry, DNS, certificados y namespaces no disponibles"
+    deadline: "Semana 1 de S1"
+    fallback: "Kubernetes local equivalente y manifests portables"
+    impact_if_unmitigated: "Integración OSC se desplaza; demo sigue local"
+    on_critical_path: true
+
+  - id: DEP-03
+    description: "Interfaces CMAM/VMT no disponibles"
+    deadline: "Fin S1"
+    fallback: "NetBox/KAudit + Trivy/OpenVAS + fixtures"
+    impact_if_unmitigated: "Se mantiene C-06 como adapter validado"
+    on_critical_path: false
+
+  - id: DEP-04
+    description: "SmartOps API/plugin contract no definido a tiempo"
+    deadline: "Fin S2"
+    fallback: "Consola mínima FastAPI/HTML offline"
+    impact_if_unmitigated: "UX final se integra después; HITL sigue verificable"
+    on_critical_path: false
+
+  - id: DEP-05
+    description: "Kernel/eBPF y privilegios para Falco/Cilium no disponibles"
+    deadline: "Fin S1"
+    fallback: "Audit logs + Wazuh/Suricata en laboratorio"
+    impact_if_unmitigated: "Menor fidelidad runtime; registrar desviación"
+    on_critical_path: false
+
+  - id: DEP-06
+    description: "Modelo y GPU soberanos no disponibles"
+    deadline: "Fin S4"
+    fallback: "Reglas/plantillas deterministas; CPU model pequeño"
+    impact_if_unmitigated: "No bloquea autorización ni remediación"
+    on_critical_path: false
+
+  - id: DEP-07
+    description: "SOC externo y formato de handover no definidos"
+    deadline: "Fin S4"
+    fallback: "SOC emulado con contrato v1 y ACK"
+    impact_if_unmitigated: "Integración real queda P1/PI3"
+    on_critical_path: false
+
+  - id: DEP-08
+    description: "Clasificación/retención/RPO-RTO sin decidir"
+    deadline: "Fin S2"
+    fallback: "Política conservadora local sin exportación"
+    impact_if_unmitigated: "No se exporta hasta decisión formal"
+    on_critical_path: false
+
+  - id: DEP-09
+    description: "Disponibilidad DMZ no confirmada"
+    deadline: "Inicio S5"
+    fallback: "Flows etiquetados y detector emulado"
+    impact_if_unmitigated: "ARG-018 no se declara MVP-REAL"
+    on_critical_path: false
+
+  - id: DEP-10
+    description: "Ventana de aprobación y operadores SOC no asignados"
+    deadline: "Antes de S6"
+    fallback: "Aprobadores de laboratorio segregados"
+    impact_if_unmitigated: "Sin ejecución si no hay rol válido"
+    on_critical_path: false

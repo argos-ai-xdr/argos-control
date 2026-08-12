@@ -1,0 +1,54 @@
+name: Excepción de seguridad o de política
+description: Solicitar una excepción con caducidad a una regla de gobierno, dependencia o gate
+title: "EXC-XXX: "
+labels: ["exception", "security"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ningún rol puede aprobar una excepción de la que sea ejecutor (segregación de funciones).
+        Toda excepción debe tener fecha de caducidad; no hay excepciones indefinidas.
+  - type: textarea
+    id: rule
+    attributes:
+      label: Regla, política o gate del que se solicita excepción
+    validations:
+      required: true
+  - type: textarea
+    id: justification
+    attributes:
+      label: Justificación
+    validations:
+      required: true
+  - type: textarea
+    id: compensating-controls
+    attributes:
+      label: Controles compensatorios mientras dure la excepción
+    validations:
+      required: true
+  - type: input
+    id: requester
+    attributes:
+      label: Solicitante
+    validations:
+      required: true
+  - type: input
+    id: approver
+    attributes:
+      label: Aprobador (rol distinto al solicitante y al ejecutor)
+    validations:
+      required: true
+  - type: input
+    id: expiry
+    attributes:
+      label: Fecha de caducidad (obligatoria)
+    validations:
+      required: true
+  - type: dropdown
+    id: blocks-critical
+    attributes:
+      label: ¿Afecta a un control crítico de AC01-AC14?
+      description: "No se permite waiver para: acciones inseguras, ejecución sin aprobación, CVE inventadas, violación de allowlist, fallo de rollback o fuga de datos"
+      options: ["No", "Sí — requiere escalado a Security & Change Board"]
+    validations:
+      required: true

@@ -1,0 +1,18 @@
+# CODEOWNERS de argos-control
+#
+# Los propietarios abajo son ROLES (ver governance/raci/raci.md), no usuarios reales.
+# Sustituir por handles de GitHub durante S1 (DEP-01 - equipo/FTE y owners por WP).
+# Abreviaturas: POA Product Owner/Arquitectura, DL Delivery Lead, QSO QA/Security Observer.
+
+*                       @poa-architecture @delivery-lead
+
+/adr/                   @poa-architecture
+/architecture/          @poa-architecture
+/governance/            @poa-architecture @qa-security-observer
+/governance/gates/      @qa-security-observer
+/governance/risks/      @qa-security-observer @poa-architecture
+/releases/              @delivery-lead @qa-security-observer
+/compatibility/         @poa-architecture
+/templates/             @delivery-lead
+/project/               @delivery-lead @poa-architecture
+/.github/workflows/     @platform-sre

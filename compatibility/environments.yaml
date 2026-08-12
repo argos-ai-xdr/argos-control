@@ -1,0 +1,24 @@
+# Entornos y su relación con dependencias externas (DEP-01..10)
+# Ver architecture/deployment/environments.md para la narrativa completa.
+
+environments:
+  - name: local
+    purpose: "Desarrollo individual y CI ligera"
+    reset_reproducible: true
+    depends_on: []
+
+  - name: laboratory
+    purpose: "Cyber-range y validación de escenarios (ARGOS-CYB-01)"
+    reset_reproducible: true
+    depends_on:
+      - DEP-05 # Kernel/eBPF y privilegios para Falco/Cilium
+      - DEP-09 # Disponibilidad DMZ
+
+  - name: osc
+    purpose: "Entorno objetivo del cliente"
+    reset_reproducible: false # depende del proveedor OSC
+    depends_on:
+      - DEP-02 # OSC, registry, DNS, certificados y namespaces
+    fallback: "Kubernetes local equivalente y manifests portables; la demo sigue local"
+
+promotion_order: [local, laboratory, osc]

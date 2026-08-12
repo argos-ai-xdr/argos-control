@@ -1,0 +1,63 @@
+name: reusable-iac-ci
+
+on:
+  workflow_call:
+    inputs:
+      opentofu-directory:
+        type: string
+        default: "opentofu"
+      kustomize-directory:
+        type: string
+        default: "kustomize"
+      helm-directory:
+        type: string
+        default: "helm"
+
+jobs:
+  opentofu:
+    runs-on: ubuntu-latest
+    if: inputs.opentofu-directory != ''
+    defaults:
+      run:
+        working-directory: ${{ inputs.opentofu-directory }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+      - run: tofu fmt -check -recursive
+      - run: |
+          for env in environments/*/; do
+            (cd "$env" && tofu init -backend=false && tofu validate)
+          done
+
+  kustomize-and-policy:
+    runs-on: ubuntu-latest
+    if: inputs.kustomize-directory != ''
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar kustomize, kubeconform y conftest
+        run: |
+          curl -sSL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          curl -sSL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz kubeconform
+          curl -sSL https://github.com/open-policy-agent/conftest/releases/latest/download/conftest_linux_x86_64.tar.gz | tar xz conftest
+
+      - name: Build + validar cada overlay
+        run: |
+          for overlay in ${{ inputs.kustomize-directory }}/overlays/*/; do
+            ./kustomize build "$overlay" > /tmp/rendered.yaml
+            ./kubeconform -strict -summary /tmp/rendered.yaml
+            if [ -d policies/gatekeeper ]; then
+              ./conftest test /tmp/rendered.yaml --policy policies/gatekeeper
+            fi
+          done
+
+  helm-lint:
+    runs-on: ubuntu-latest
+    if: inputs.helm-directory != ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+      - run: |
+          for chart in ${{ inputs.helm-directory }}/*/; do
+            helm lint "$chart"
+          done

@@ -1,0 +1,17 @@
+Uso interno — clasificación: interno del equipo de propuesta ARGOS.
+
+Este repositorio y su contenido forman parte de la propuesta técnica y de la
+ejecución del proyecto ARGOS AI-Managed XDR (documento maestro
+ARGOS_Propuesta_Tecnica_Maestro_Vivo, HE-DDJF-GMV-034.01-0001 /
+HE-PRC-GMV-034.01-0002). No está publicado bajo una licencia open source y no
+debe redistribuirse fuera del equipo del proyecto sin autorización expresa.
+
+PENDIENTE: sustituir este aviso por el texto de licencia/propiedad intelectual
+definitivo que acuerden Product Owner/Arquitectura y el cliente contratante
+antes del Scope Gate (G0, S1). Este marcador de posición no constituye
+asesoría legal.
+
+Nota: esta clasificación de "uso interno" se aplica al propio código de
+gobierno y a los repositorios de argos-ai-xdr. La política de dependencias
+(ADR-013) exige que los componentes de terceros integrados en la plataforma
+sean, en cambio, open source con licencia verificable.

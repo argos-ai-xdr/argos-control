@@ -1,0 +1,57 @@
+name: Propuesta de ADR
+description: Proponer o cambiar una decisión de arquitectura
+title: "ADR-0XX: "
+labels: ["adr", "architecture"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Las decisiones ADR-001 a ADR-013 están RESUELTAS PARA BASELINE MVP (documento maestro v0.5, 6.6).
+        Cambiarlas requiere un ADR nuevo, análisis de impacto sobre AC01-AC14 y plan de migración.
+  - type: dropdown
+    id: type
+    attributes:
+      label: Tipo
+      options:
+        - "Nuevo ADR"
+        - "Cambio a un ADR RESUELTO existente"
+    validations:
+      required: true
+  - type: input
+    id: supersedes
+    attributes:
+      label: ADR que sustituye o afecta (si aplica)
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexto
+    validations:
+      required: true
+  - type: textarea
+    id: decision
+    attributes:
+      label: Decisión propuesta
+    validations:
+      required: true
+  - type: textarea
+    id: consequence
+    attributes:
+      label: Consecuencia
+    validations:
+      required: true
+  - type: textarea
+    id: ac-impact
+    attributes:
+      label: Análisis de impacto sobre AC01-AC14
+      description: Obligatorio si cambia un ADR ya RESUELTO
+  - type: textarea
+    id: migration
+    attributes:
+      label: Plan de migración (si aplica)
+  - type: dropdown
+    id: status
+    attributes:
+      label: Estado
+      options: ["PROPUESTO", "EN REVISIÓN", "RESUELTO", "RECHAZADO"]
+    validations:
+      required: true

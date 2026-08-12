@@ -1,0 +1,22 @@
+release: 0.1.0-dev
+status: dev
+created_at: "2026-08-12T16:39:00Z"
+
+# Corresponde a ARG-001: crear repos, owners, branches, templates ADR y release manifest.
+# Cada repositorio solo tiene el commit inicial ("Initial commit") en este punto;
+# ningún servicio tiene imagen construida todavía, por lo que `images`, `contracts`
+# y `validation` se omiten (permitido por el schema para status=dev).
+
+repositories:
+  argos-platform:
+    commit: ae34795
+  argos-contracts-scenarios:
+    commit: d1b590a
+  argos-core:
+    commit: aa4420c
+  argos-cyber-tools:
+    commit: 1b188d9
+  argos-validation:
+    commit: d09963d
+  argos-smartops:
+    commit: 923d5d0

@@ -1,0 +1,80 @@
+name: reusable-release-validation
+
+on:
+  workflow_call:
+    inputs:
+      manifest-path:
+        description: Ruta al release-manifest.yaml candidato en el repositorio que llama al workflow
+        type: string
+        required: true
+      control-ref:
+        description: Ref de argos-control del que tomar el schema (por defecto main)
+        type: string
+        default: "main"
+
+jobs:
+  validate-manifest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repositorio que dispara el release
+        uses: actions/checkout@v4
+        with:
+          path: caller
+
+      - name: Checkout argos-control (schema y compatibilidad)
+        uses: actions/checkout@v4
+        with:
+          repository: argos-ai-xdr/argos-control
+          ref: ${{ inputs.control-ref }}
+          path: control
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: python -m pip install pyyaml jsonschema
+
+      - name: Validar contra el schema del release manifest
+        run: |
+          python - <<'PY'
+          import json, yaml, sys
+          from jsonschema import validate, ValidationError
+
+          schema = json.load(open("control/releases/schema/release-manifest.schema.json"))
+          manifest = yaml.safe_load(open("caller/${{ inputs.manifest-path }}"))
+          try:
+              validate(instance=manifest, schema=schema)
+          except ValidationError as exc:
+              print(f"Manifiesto inválido: {exc.message}", file=sys.stderr)
+              sys.exit(1)
+          print("Manifiesto conforme al schema.")
+          PY
+
+      - name: Todas las imágenes deben referenciarse por digest
+        run: |
+          python - <<'PY'
+          import yaml, sys
+          manifest = yaml.safe_load(open("caller/${{ inputs.manifest-path }}"))
+          bad = [k for k, v in manifest.get("images", {}).items() if "@sha256:" not in v]
+          if bad:
+              print(f"Imágenes sin digest fijo: {bad}", file=sys.stderr)
+              sys.exit(1)
+          PY
+
+      - uses: sigstore/cosign-installer@v3
+
+      - name: Verificar firma de cada imagen referenciada
+        run: |
+          python - <<'PY' > /tmp/images.txt
+          import yaml
+          manifest = yaml.safe_load(open("caller/${{ inputs.manifest-path }}"))
+          for ref in manifest.get("images", {}).values():
+              print(ref)
+          PY
+          while read -r image; do
+            cosign verify "$image" \
+              --certificate-identity-regexp "^https://github.com/argos-ai-xdr/" \
+              --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+          done < /tmp/images.txt
