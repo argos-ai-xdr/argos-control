@@ -26,7 +26,7 @@ jobs:
       - run: tofu fmt -check -recursive
       - run: |
           for env in environments/*/; do
-            (cd "$env" && tofu init -backend=false && tofu validate)
+            (cd "$env" && tofu init -backend=false -input=false && tofu validate)
           done
 
   kustomize-and-policy:
@@ -44,8 +44,14 @@ jobs:
       - name: Build + validar cada overlay
         run: |
           for overlay in ${{ inputs.kustomize-directory }}/overlays/*/; do
-            ./kustomize build "$overlay" > /tmp/rendered.yaml
-            ./kubeconform -strict -summary /tmp/rendered.yaml
+            # LoadRestrictionsNone: las bases de este repo referencian
+            # deliberadamente recursos fuera del árbol kustomize/ (namespaces
+            # en kubernetes/, políticas en policies/) para no duplicarlos.
+            ./kustomize build --load-restrictor LoadRestrictionsNone "$overlay" > /tmp/rendered.yaml
+            # -ignore-missing-schemas: los CRD de Gatekeeper (ConstraintTemplate,
+            # Constraint) no tienen schema OpenAPI publicado que kubeconform
+            # pueda resolver; se validan solo los kinds nativos de Kubernetes.
+            ./kubeconform -strict -ignore-missing-schemas -summary /tmp/rendered.yaml
             if [ -d policies/gatekeeper ]; then
               ./conftest test /tmp/rendered.yaml --policy policies/gatekeeper
             fi
