@@ -45,7 +45,12 @@ jobs:
           mkdir -p "$tools_dir"
           (cd "$tools_dir" && curl -sSL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash)
           (cd "$tools_dir" && curl -sSL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz kubeconform)
-          (cd "$tools_dir" && curl -sSL https://github.com/open-policy-agent/conftest/releases/latest/download/conftest_linux_x86_64.tar.gz | tar xz conftest)
+          # El asset de conftest incluye la versión y usa "Linux" en mayúscula
+          # (p. ej. conftest_0.69.0_Linux_x86_64.tar.gz); a diferencia de
+          # kustomize/kubeconform no hay un alias "latest" estable con nombre
+          # fijo, así que se resuelve la versión vía la API de releases.
+          conftest_version=$(curl -sSL https://api.github.com/repos/open-policy-agent/conftest/releases/latest | jq -r .tag_name | sed 's/^v//')
+          (cd "$tools_dir" && curl -sSL "https://github.com/open-policy-agent/conftest/releases/latest/download/conftest_${conftest_version}_Linux_x86_64.tar.gz" | tar xz conftest)
           echo "$tools_dir" >> "$GITHUB_PATH"
 
       - name: Build + validar cada overlay
