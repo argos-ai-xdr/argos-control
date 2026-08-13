@@ -64,7 +64,14 @@ jobs:
             # Constraint) no tienen schema OpenAPI publicado que kubeconform
             # pueda resolver; se validan solo los kinds nativos de Kubernetes.
             kubeconform -strict -ignore-missing-schemas -summary /tmp/rendered.yaml
-            if [ -d policies/gatekeeper ]; then
+            # policies/gatekeeper contiene ConstraintTemplate (CRD con el Rego
+            # incrustado en YAML, para el webhook de admisión en vivo), no
+            # políticas .rego sueltas en el formato que conftest sabe cargar
+            # (ni el input que espera coincide: Gatekeeper usa
+            # input.review.object, conftest pasa el recurso directamente) —
+            # comprobar solo el directorio hace que conftest falle con "no
+            # policies found" en vez de no tener nada que hacer.
+            if compgen -G "policies/gatekeeper/*.rego" > /dev/null; then
               conftest test /tmp/rendered.yaml --policy policies/gatekeeper
             fi
           done
