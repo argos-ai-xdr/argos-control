@@ -37,9 +37,16 @@ jobs:
 
       - name: Instalar kustomize, kubeconform y conftest
         run: |
-          curl -sSL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
-          curl -sSL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz kubeconform
-          curl -sSL https://github.com/open-policy-agent/conftest/releases/latest/download/conftest_linux_x86_64.tar.gz | tar xz conftest
+          # Se instalan en $RUNNER_TEMP, no en la raíz del checkout: algunos
+          # repos (p. ej. argos-platform) tienen un directorio de primer
+          # nivel llamado "kustomize/" (los manifiestos), que colisiona con
+          # el binario "kustomize" que el instalador crea por defecto en cwd.
+          tools_dir="$RUNNER_TEMP/iac-tools"
+          mkdir -p "$tools_dir"
+          (cd "$tools_dir" && curl -sSL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash)
+          (cd "$tools_dir" && curl -sSL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz kubeconform)
+          (cd "$tools_dir" && curl -sSL https://github.com/open-policy-agent/conftest/releases/latest/download/conftest_linux_x86_64.tar.gz | tar xz conftest)
+          echo "$tools_dir" >> "$GITHUB_PATH"
 
       - name: Build + validar cada overlay
         run: |
@@ -47,13 +54,13 @@ jobs:
             # LoadRestrictionsNone: las bases de este repo referencian
             # deliberadamente recursos fuera del árbol kustomize/ (namespaces
             # en kubernetes/, políticas en policies/) para no duplicarlos.
-            ./kustomize build --load-restrictor LoadRestrictionsNone "$overlay" > /tmp/rendered.yaml
+            kustomize build --load-restrictor LoadRestrictionsNone "$overlay" > /tmp/rendered.yaml
             # -ignore-missing-schemas: los CRD de Gatekeeper (ConstraintTemplate,
             # Constraint) no tienen schema OpenAPI publicado que kubeconform
             # pueda resolver; se validan solo los kinds nativos de Kubernetes.
-            ./kubeconform -strict -ignore-missing-schemas -summary /tmp/rendered.yaml
+            kubeconform -strict -ignore-missing-schemas -summary /tmp/rendered.yaml
             if [ -d policies/gatekeeper ]; then
-              ./conftest test /tmp/rendered.yaml --policy policies/gatekeeper
+              conftest test /tmp/rendered.yaml --policy policies/gatekeeper
             fi
           done
 
