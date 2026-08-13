@@ -1,0 +1,29 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    # argos-control no tiene código Python propio (sin pyproject.toml, sin
+    # tests/*.py real) — reusable-python-ci.yaml fallaría aquí ("no tests
+    # collected"), y este repo solo aloja esos workflows reutilizables para
+    # que OTROS repos los llamen (@main); nunca se llama a sí mismo. Por eso
+    # scripts/validate.sh (YAML/JSON bien formado + claves obligatorias de
+    # repository.yaml) nunca se ejecutaba en CI, a diferencia de todos los
+    # demás repos de argos-ai-xdr.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: python -m pip install --quiet --upgrade pip pyyaml jsonschema
+
+      - name: Validar YAML/JSON del repositorio
+        run: ./scripts/validate.sh
