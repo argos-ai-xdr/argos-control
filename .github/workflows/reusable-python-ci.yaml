@@ -18,6 +18,15 @@ on:
           contra ese repositorio hermano (p. ej. argos-validation, argos-core).
         type: string
         default: ""
+    secrets:
+      contracts-checkout-token:
+        description: >-
+          PAT con acceso de lectura a argos-ai-xdr/argos-contracts-scenarios.
+          Requerido cuando contracts-ref != "" porque el GITHUB_TOKEN por
+          defecto solo tiene acceso al repo donde corre el workflow, no a
+          repos hermanos privados. El caller debe pasar
+          `secrets: inherit` (u override explícito de este secreto de org).
+        required: false
 
 jobs:
   lint-and-test:
@@ -35,6 +44,7 @@ jobs:
           repository: argos-ai-xdr/argos-contracts-scenarios
           ref: ${{ inputs.contracts-ref }}
           path: _contracts-scenarios
+          token: ${{ secrets.contracts-checkout-token }}
 
       - uses: actions/setup-python@v5
         with:
