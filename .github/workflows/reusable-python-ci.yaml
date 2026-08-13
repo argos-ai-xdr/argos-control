@@ -10,6 +10,14 @@ on:
       python-version:
         type: string
         default: "3.12"
+      contracts-ref:
+        description: >-
+          Si se indica (p. ej. "main"), hace checkout de
+          argos-ai-xdr/argos-contracts-scenarios y expone su ruta en
+          ARGOS_CONTRACTS_PATH para repos cuyos tests validan fixtures/schemas
+          contra ese repositorio hermano (p. ej. argos-validation, argos-core).
+        type: string
+        default: ""
 
 jobs:
   lint-and-test:
@@ -19,6 +27,14 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Checkout argos-contracts-scenarios (repo hermano)
+        if: inputs.contracts-ref != ''
+        uses: actions/checkout@v4
+        with:
+          repository: argos-ai-xdr/argos-contracts-scenarios
+          ref: ${{ inputs.contracts-ref }}
+          path: _contracts-scenarios
 
       - uses: actions/setup-python@v5
         with:
@@ -38,6 +54,8 @@ jobs:
         run: mypy . || true # elevar a bloqueante cuando el repo declare tipado estricto
 
       - name: Tests (pytest, con cobertura)
+        env:
+          ARGOS_CONTRACTS_PATH: ${{ inputs.contracts-ref != '' && format('{0}/_contracts-scenarios', github.workspace) || '' }}
         run: pytest --cov --cov-report=term-missing
 
       - name: Bloquear secretos filtrados
