@@ -7,6 +7,13 @@ on:
         description: "Imagen por digest, p. ej. registry/argos/normalizer@sha256:..."
         type: string
         required: true
+      registry:
+        description: >-
+          Hostname del registry, p. ej. "ghcr.io" (docker/login-action exige
+          solo el host, no la referencia completa con nombre y digest que
+          lleva image-ref).
+        type: string
+        required: true
       sbom-format:
         type: string
         default: "cyclonedx-json" # alternativa: spdx-json
@@ -27,7 +34,7 @@ jobs:
 
       - uses: docker/login-action@v3
         with:
-          registry: ${{ inputs.image-ref }}
+          registry: ${{ inputs.registry }}
           username: ${{ secrets.registry-username }}
           password: ${{ secrets.registry-password }}
 
