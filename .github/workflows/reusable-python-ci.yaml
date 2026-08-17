@@ -19,7 +19,7 @@ on:
         type: string
         default: ""
     secrets:
-      CONTRACTS_CHECKOUT_TOKEN:
+      DIAGNOSTIC_TEST_NAME_NO_MATCH:
         description: >-
           PAT con acceso de lectura a argos-ai-xdr/argos-contracts-scenarios.
           Requerido cuando contracts-ref != "" porque el GITHUB_TOKEN por
