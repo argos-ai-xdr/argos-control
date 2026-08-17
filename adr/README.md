@@ -33,5 +33,9 @@ Todas las decisiones ADR-001 a ADR-013 provienen del documento maestro v0.5 (sec
 | [ADR-061](ADR-061-semantic-conflict-and-authority-precedence.md) | SemanticConflict + Authority precedence (Fase K) — extiende `asset_reconciler`, nunca elige arbitrariamente | RESUELTO PARA BASELINE |
 | [ADR-062](ADR-062-safety-kernel-mission-context-integration.md) | Integración de MissionContext en Safety Kernel (Fase K) — mission_impact_bounded real, MissionContext nunca decide autorización | RESUELTO PARA BASELINE — alcance explícitamente acotado |
 | [ADR-063](ADR-063-mission-decision-evidence-integration.md) | Integración de evidencia de decisiones de misión con Fase J (Fase K) — reutiliza evidence_root/evidence_writer, sin mecanismo paralelo | RESUELTO PARA BASELINE |
+| [ADR-064](ADR-064-security-domain-and-tenant-isolation.md) | SecurityDomain y aislamiento tenant/dominio (Fase L) — deny-by-default real, sin inferir permiso de la ausencia de prohibición | RESUELTO PARA BASELINE |
+| [ADR-065](ADR-065-federated-artifact-and-federation-decision.md) | FederatedArtifact + evaluación local de confianza (Fase L) — "la federación transporta información, nunca autoridad"; ACCEPT != ACTIVE | RESUELTO PARA BASELINE — alcance explícitamente acotado |
+| [ADR-066](ADR-066-cross-domain-transfer-ifc-sanitization.md) | CrossDomainTransfer + IFC + sanitización determinista (Fase L) — ningún LLM desclasifica de forma autoritativa | RESUELTO PARA BASELINE |
+| [ADR-067](ADR-067-federation-transport-and-evidence-integration.md) | Transporte de prueba (TEST_LOCAL) + integración de evidencia de Federation con Fase J (Fase L) — REAL_TRANSPORT=BLOCKED_EXTERNAL | RESUELTO PARA BASELINE — alcance explícitamente acotado |
 
 Plantilla para ADR nuevos: `../templates/adr/ADR-template.md`. Proponer uno nuevo vía el issue template `architecture-decision.yaml`.
