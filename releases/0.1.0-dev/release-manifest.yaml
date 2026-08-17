@@ -1,22 +1,27 @@
 release: 0.1.0-dev
 status: dev
-created_at: "2026-08-12T16:39:00Z"
+created_at: "2026-08-17T09:55:00Z"
 
-# Corresponde a ARG-001: crear repos, owners, branches, templates ADR y release manifest.
-# Cada repositorio solo tiene el commit inicial ("Initial commit") en este punto;
-# ningún servicio tiene imagen construida todavía, por lo que `images`, `contracts`
-# y `validation` se omiten (permitido por el schema para status=dev).
+# Actualizado para ARG-028 (as-built, propuesta v0.6.25.4 §16.7) — la
+# versión anterior solo registraba el "Initial commit" de ARG-001 (S1),
+# desincronizada del estado real tras S2-S8. `images`/`contracts`/
+# `validation` siguen omitidos (permitido por el schema para status=dev):
+# ningún componente OSS tiene versión/digest fijado todavía
+# (helm/argos-services/Chart.yaml sigue con `version: "TODO"`,
+# `opensearch.enabled: false` — ver
+# argos-validation/traceability.yaml gate G0/G6 para el detalle real de
+# qué falta antes de poder pasar a status=candidate).
 
 repositories:
   argos-platform:
-    commit: ae34795
+    commit: a701a0b
   argos-contracts-scenarios:
-    commit: d1b590a
+    commit: 01e8f92
   argos-core:
-    commit: aa4420c
+    commit: 9777efa
   argos-cyber-tools:
-    commit: 1b188d9
+    commit: ef4823c
   argos-validation:
-    commit: d09963d
+    commit: a244da5
   argos-smartops:
-    commit: 923d5d0
+    commit: e581d3b
