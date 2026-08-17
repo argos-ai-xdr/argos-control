@@ -1,0 +1,248 @@
+# Deep Assurance (prompt maestro de arquitectura objetivo, §22 y anexo
+# "Deep Assurance"; ADR-017; argos-control/architecture/v0.6.25-gap-matrix.md).
+#
+# NO existe todavía un "Deep Assurance Architecture" como subsistema de
+# software (motor que genere/valide esta cadena automáticamente — eso es
+# Fase J, no construida). Esto es el LEDGER real: la cadena
+# Requirement→Claim→Argument→Control→Test→Metric→Run→Evidence→
+# Residual Risk→Gate, mantenida a mano, sobre el MVP que SÍ existe hoy —
+# mismo principio que traceability.yaml (argos-validation) pero para
+# afirmaciones de seguridad concretas, no para trazabilidad de historias.
+#
+# Regla dura (igual que el prompt exige): ningún claim crítico hereda
+# SUPPORTED solo porque el componente exista. Cada uno exige
+# evidence_refs verificables — archivo/test real, no una afirmación. Los
+# claims sobre capacidades que NO existen (Safety Kernel, etc.) se listan
+# igual, en NOT_SUPPORTED — el ledger no oculta huecos.
+
+schema_version: 1
+
+states: [SUPPORTED, PARTIALLY_SUPPORTED, NOT_SUPPORTED, NOT_EVALUATED]
+
+claims:
+  - id: CLAIM-001
+    requirement: "AC10 — ejecuciones sin aprobación = 0"
+    statement: >
+      Ninguna acción con dry_run=false se ejecuta sin una Approval válida
+      (decision=APPROVE, rol soc-approver, no caducada, plan_hash
+      coincidente).
+    argument: >
+      mcp_gateway.Gateway.authorize() solo permite action=execute con
+      tool.approval_required si ApprovalStore.validate_and_consume no
+      lanza ApprovalRejected — que ocurre para replay, segregación de
+      funciones, decisión != APPROVE, TTL expirado o signature_ref
+      desajustado del plan_hash actual.
+    controls:
+      - argos-cyber-tools/mcp_gateway/__init__.py
+      - argos-cyber-tools/policies/approval/__init__.py
+    tests:
+      - argos-cyber-tools/tests/authorization/test_gateway.py
+      - argos-cyber-tools/tests/anti-replay/test_approval_anti_replay.py
+      - argos-validation/evaluators/approval_gate/__init__.py
+    metric: unapproved_execution_rate
+    run_evidence: "argos-validation/harness/acceptance.py, AC10=PASS (verificado 2026-08-17)"
+    residual_risk: >
+      Sin contracts_path disponible, approval_gate cuenta como violación
+      (fail-closed) en vez de asumir aprobación — correcto para el
+      propósito de este claim, pero significa que el evaluador nunca
+      puede reportar falso-PASS por falta de datos.
+    state: SUPPORTED
+    gate: G5
+
+  - id: CLAIM-002
+    requirement: "AC12 — rollback success = 1.00"
+    statement: >
+      Un ActionResult con status=rolled_back solo cuenta como éxito si
+      verification.passed=true, recomputado de forma independiente
+      (rollback/verification.py no confía en el propio campo del
+      ActionResult).
+    argument: >
+      rollback_isolation/rollback_scale_to_zero comprueban el estado
+      REAL (was_isolated / was_scaled_down) antes de mutar — un rollback
+      sin nada que revertir reporta changed_resources=[] en vez de
+      afirmar un cambio falso (bug real corregido en esta sesión).
+    controls:
+      - argos-cyber-tools/rollback/strategies.py
+      - argos-cyber-tools/rollback/verification.py
+    tests:
+      - argos-cyber-tools/tests/rollback/test_rollback_cycle.py
+    metric: rollback_success_rate
+    run_evidence: "argos-validation/harness/acceptance.py, AC12=PASS (verificado 2026-08-17)"
+    residual_risk: >
+      Probado solo contra FakeClusterState/FakeReplicaState en memoria —
+      nunca contra un cluster real (bloqueado en ENV-QUAL-01). El
+      resultado es real para la lógica, no para la infraestructura.
+    state: PARTIALLY_SUPPORTED
+    gate: G5
+
+  - id: CLAIM-003
+    requirement: "AC03/AC08 — CVE/IoC inventados = 0"
+    statement: >
+      Ningún VulnerabilityFinding con source_ref que no resuelve a un
+      snapshot real entra en priorización.
+    argument: >
+      evaluators.hallucination compara source_ref contra snapshots
+      reales; vulnerability_adapter rechaza (no fabrica) un finding sin
+      purl/cpe.
+    controls:
+      - argos-core/services/vulnerability_adapter/__init__.py
+      - argos-validation/evaluators/hallucination/__init__.py
+    tests:
+      - argos-core/tests/unit/test_vulnerability_adapter.py
+    metric: ungrounded_cve_rate
+    run_evidence: "argos-validation/harness/acceptance.py, AC03/AC08=FAIL contra thresholds/acceptance.yaml (verificado 2026-08-17) — PASS contra thresholds/smoke.yaml"
+    residual_risk: >
+      El run real de aceptación FALLA hoy porque solo hay fixtures
+      smoke-tier, no datos acceptance-tier calibrados — reportado tal
+      cual por harness/acceptance.py, no suavizado.
+    state: PARTIALLY_SUPPORTED
+    gate: G2
+
+  - id: CLAIM-004
+    requirement: "AC13 — sin duplicación de efecto ante reintento"
+    statement: >
+      Un reintento con la misma idempotency_key devuelve el ActionResult
+      ya producido, nunca reaplica el efecto.
+    argument: >
+      IdempotencyStore.get()/remember() se consulta antes de aplicar
+      cualquier cambio real en KubernetesExecutor/ScaleToZeroExecutor.
+    controls:
+      - argos-cyber-tools/executors/__init__.py
+    tests:
+      - argos-cyber-tools/tests/idempotency/test_executor_idempotency.py
+    metric: idempotency_violation_rate
+    run_evidence: "argos-validation/harness/acceptance.py, AC13=PASS (verificado 2026-08-17)"
+    residual_risk: "Ninguno identificado a nivel de lógica."
+    state: SUPPORTED
+    gate: G5
+
+  - id: CLAIM-005
+    requirement: "El LLM/motor de recomendación nunca tiene credenciales de ejecución ni acceso directo a infraestructura"
+    statement: >
+      Ningún RecommendationEngine (determinista o LangGraph) importa un
+      ejecutor de argos-cyber-tools; toda acción pasa por
+      mcp_gateway→OPA→Approval antes de llegar a un executor.
+    argument: >
+      Verificado por inspección real de imports: cero referencias de
+      import (no solo de prosa) desde argos-core/services/recommendation
+      hacia executors/mcp_gateway de argos-cyber-tools. El propio
+      docstring del módulo lo declara como invariante.
+    controls:
+      - argos-core/services/recommendation/__init__.py
+    tests: []
+    metric: null
+    run_evidence: "grep de imports reales en services/recommendation/__init__.py, sin resultados hacia executors (verificado 2026-08-17)"
+    residual_risk: >
+      No hay un test automatizado que FALLE si alguien añade ese import
+      en el futuro (solo verificación manual esta sesión) — candidato a
+      un check de arquitectura en CI, no construido todavía.
+    state: PARTIALLY_SUPPORTED
+    gate: G5
+
+  - id: CLAIM-006
+    requirement: "Target allowlist — out-of-scope action = 0"
+    statement: >
+      Ninguna tool con target_allowlist_required=true se autoriza contra
+      un target fuera de su allowlist declarada.
+    argument: >
+      Gateway.authorize() comprueba request.target contra
+      target_allowlists ANTES de evaluar Approval — probado contra
+      ejemplos reales fuera de scope.
+    controls:
+      - argos-cyber-tools/mcp_gateway/__init__.py
+      - argos-cyber-tools/policies/target-allowlists/
+    tests:
+      - argos-cyber-tools/tests/authorization/test_gateway.py
+      - argos-cyber-tools/tests/graph/test_attack_path.py
+    metric: tool_correctness
+    run_evidence: "argos-validation/harness/acceptance.py, AC09=PASS (verificado 2026-08-17)"
+    residual_risk: >
+      La allowlist de NIVEL RANGO (argos-platform/cyber-range/targets/allowlist.yaml,
+      distinta de la allowlist por tool) sigue siendo plantilla sin
+      rellenar — ver argos-cyber-tools/docs/cyber-range-package.md.
+    state: PARTIALLY_SUPPORTED
+    gate: G3
+
+  - id: CLAIM-007
+    requirement: "ARG-010 — drift crítico omitido = 0"
+    statement: >
+      Un asset cuya criticidad no se puede confirmar tras comparar
+      as-designed/as-built se marca explícitamente, nunca se asume "no
+      crítico" por defecto.
+    argument: >
+      evaluators.drift solo cuenta "missed" cuando criticality_esp es
+      irresoluble en alguna de las dos instantáneas — un drift
+      confirmado-crítico es el caso correctamente detectado, no un fallo.
+    controls:
+      - argos-validation/evaluators/drift/__init__.py
+    tests:
+      - argos-validation/tests/test_evaluators.py
+    metric: critical_drift_missed_rate
+    run_evidence: "argos-validation/harness/acceptance.py, suite c06 (verificado 2026-08-17)"
+    residual_risk: "Ninguno identificado a nivel de lógica."
+    state: SUPPORTED
+    gate: G2
+
+  - id: CLAIM-008
+    requirement: "Reproducibilidad — dos ejecuciones limpias producen el mismo conjunto de hechos (AC01)"
+    statement: >
+      Correr la misma suite dos veces sobre el mismo checkout de
+      fixtures produce valores de métrica idénticos.
+    argument: >
+      harness/reproducibility.py corre run_suite() dos veces y compara
+      value/gate/sample_size métrica por métrica, ignorando solo
+      generated_at (metadato de cuándo, no de qué se encontró).
+    controls:
+      - argos-validation/harness/reproducibility.py
+    tests:
+      - argos-validation/tests/test_reproducibility.py
+      - argos-validation/tests/test_acceptance.py
+    metric: reproducibility_violation
+    run_evidence: "argos-validation/harness/acceptance.py, AC01=PASS (verificado 2026-08-17)"
+    residual_risk: "Ninguno identificado a nivel de lógica."
+    state: SUPPORTED
+    gate: G1
+
+  - id: CLAIM-009
+    requirement: "Safety Kernel valida límites deterministas antes de OPA/Policy"
+    statement: >
+      Una Recommendation pasa por un módulo determinista y no generativo
+      que valida target/tool/runbook/blast-radius/drift antes de
+      alcanzar PolicyDecision.
+    argument: null
+    controls: []
+    tests: []
+    metric: null
+    run_evidence: null
+    residual_risk: >
+      No existe ningún código de Safety Kernel/SafetyEnvelope/
+      Independent Verifier/RuntimeTrustContext en ningún repo
+      (verificado: cero resultados para esos términos fuera de
+      documentos de gap-analysis). Es la brecha de mayor prioridad según
+      ADR-017 — Fase H.
+    state: NOT_SUPPORTED
+    gate: null
+
+  - id: CLAIM-010
+    requirement: "Transparency Log — historial de promoción/revocación append-only"
+    statement: >
+      Toda promoción, revocación o aprobación crítica queda en un log
+      append-only con TransparencyReceipt verificable.
+    argument: null
+    controls: []
+    tests: []
+    metric: null
+    run_evidence: null
+    residual_risk: >
+      No existe. Distinto de AuditLog (argos-smartops), que es real pero
+      cubre solo acciones del operador dentro de ese servicio, no
+      promoción/revocación de componentes de IA/política/modelo a nivel
+      de plataforma.
+    state: NOT_SUPPORTED
+    gate: null
+
+no_waiver_for:
+  # Mismo principio que project/acceptance/acceptance-criteria.yaml —
+  # ningún claim de esta lista admite waiver.
+  - CLAIM-001
+  - CLAIM-004

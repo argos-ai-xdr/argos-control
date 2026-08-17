@@ -67,6 +67,37 @@ if oss_path.exists():
 else:
     errors.append("compatibility/oss-admission-registry.yaml no existe")
 
+# Deep Assurance ledger: cada claim SUPPORTED/PARTIALLY_SUPPORTED exige
+# al menos un control y una evidencia real (nunca "SUPPORTED" sin
+# evidence_refs verificable); no_waiver_for solo puede listar IDs que
+# existen de verdad.
+assurance_path = root / "assurance/argos-assurance.yaml"
+VALID_STATES = {"SUPPORTED", "PARTIALLY_SUPPORTED", "NOT_SUPPORTED", "NOT_EVALUATED"}
+if assurance_path.exists():
+    assurance = yaml.safe_load(assurance_path.read_text(encoding="utf-8")) or {}
+    claims = assurance.get("claims", [])
+    if not claims:
+        errors.append("assurance/argos-assurance.yaml no declara ningún claim")
+    claim_ids = [c.get("id") for c in claims]
+    dupes = {i for i in claim_ids if claim_ids.count(i) > 1}
+    if dupes:
+        errors.append(f"argos-assurance.yaml: id de claim duplicado {sorted(dupes)}")
+    for claim in claims:
+        cid = claim.get("id", "<sin id>")
+        state = claim.get("state")
+        if state not in VALID_STATES:
+            errors.append(f"argos-assurance.yaml: {cid} tiene state={state!r}, debe ser uno de {sorted(VALID_STATES)}")
+        if state in ("SUPPORTED", "PARTIALLY_SUPPORTED"):
+            if not claim.get("controls"):
+                errors.append(f"argos-assurance.yaml: {cid} es {state} pero no declara ningún control")
+            if not claim.get("run_evidence"):
+                errors.append(f"argos-assurance.yaml: {cid} es {state} pero no declara run_evidence")
+    for waived_id in assurance.get("no_waiver_for", []):
+        if waived_id not in claim_ids:
+            errors.append(f"argos-assurance.yaml: no_waiver_for referencia {waived_id!r}, no existe como claim")
+else:
+    errors.append("assurance/argos-assurance.yaml no existe")
+
 if errors:
     print("TEST FALLIDO:")
     for e in errors:
