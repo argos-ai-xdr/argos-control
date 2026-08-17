@@ -228,18 +228,39 @@ claims:
     statement: >
       Toda promoción, revocación o aprobación crítica queda en un log
       append-only con TransparencyReceipt verificable.
-    argument: null
-    controls: []
-    tests: []
-    metric: null
-    run_evidence: null
+    argument: >
+      ADR-023 (Fase J): TransparencyLog encadena entry_hash/
+      previous_entry_hash real (sha256), detecta mutación histórica y
+      huecos de secuencia recomputando desde cero, nunca confiando en el
+      campo ya escrito. EvidenceRoot agrega EvidenceManifest reales de
+      forma determinista (mismo conjunto -> mismo root_hash) y se
+      verifica con la misma disciplina. Probado con las 3 acciones
+      execute reales de Fase I, no con datos sintéticos.
+    controls:
+      - "TransparencyLog.append() es la única vía pública de mutación (sin delete/edit/clear)"
+      - "verify_chain() recomputa cada entry_hash y el enlace previous_entry_hash de forma independiente"
+      - "build_evidence_root detecta duplicados conflictivos y rechaza evidencia crítica ausente (nunca UNKNOWN)"
+    tests:
+      - "argos-core/tests/unit/test_transparency_log.py"
+      - "argos-core/tests/unit/test_evidence_root.py"
+      - "argos-core/tests/unit/test_replay.py"
+      - "argos-core/tests/unit/test_evidence_j_invariants.py"
+      - "argos-core/tests/integration/test_evidence_vertical_slice.py"
+    metric: "chain_verification_pass_rate"
+    run_evidence:
+      - "204 tests reales en argos-core (commit pendiente de push), incluye vertical slice con las 3 acciones execute reales de Fase I"
     residual_risk: >
-      No existe. Distinto de AuditLog (argos-smartops), que es real pero
-      cubre solo acciones del operador dentro de ese servicio, no
-      promoción/revocación de componentes de IA/política/modelo a nivel
-      de plataforma.
-    state: NOT_SUPPORTED
-    gate: null
+      LOGICALLY_APPEND_ONLY / TAMPER_EVIDENT, NO immutable: backend en
+      memoria + JSONL opcional, sin object-lock/WORM real (Ceph RGW no
+      desplegado, ARG-026) ni firma criptográfica (sin PKI, ARG-002/
+      ARG-020) ni servicio de transparencia externo. Cubre
+      EVIDENCE_ROOT_CREATED/VERIFIED y ACTION_EXECUTED/VERIFIED/
+      ROLLED_BACK -- NO cubre promoción/revocación de componentes de IA
+      (ese flujo no existe todavía, ver ai-component-registry.yaml).
+      Distinto de AuditLog (argos-smartops), que es real pero sin
+      hash-chain y cubre solo acciones del operador.
+    state: PARTIALLY_SUPPORTED
+    gate: G7
 
 no_waiver_for:
   # Mismo principio que project/acceptance/acceptance-criteria.yaml —
