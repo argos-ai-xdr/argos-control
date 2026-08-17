@@ -10,4 +10,7 @@ Cada carpeta `releases/<version>/release-manifest.yaml` fija los commits (y, a p
 
 Historial: [`0.1.0-dev/`](0.1.0-dev/) — ARG-001, S1.
 
+Paquetes ARG-028: [`0.1.0-dev/as-built.md`](0.1.0-dev/as-built.md),
+[`0.1.0-dev/release-restore-package.md`](0.1.0-dev/release-restore-package.md).
+
 **Nota**: escribir siempre `created_at` entre comillas (`"2026-08-12T16:39:00Z"`). Sin comillas, PyYAML lo interpreta como `datetime` nativo en vez de `string` y la validación contra el schema falla.
