@@ -209,18 +209,87 @@ claims:
       Una Recommendation pasa por un módulo determinista y no generativo
       que valida target/tool/runbook/blast-radius/drift antes de
       alcanzar PolicyDecision.
-    argument: null
-    controls: []
-    tests: []
-    metric: null
-    run_evidence: null
+    argument: >
+      safety_kernel.evaluate() ejecuta 14 comprobaciones deterministas
+      (ADR-054, Fase H) y produce un SafetyEnvelope real cuando
+      SAFE_TO_EVALUATE; independent_verifier.verify() (ADR-055) lo
+      re-confirma con hechos frescos. Corregido en la reconciliación
+      global A→L 2026-08-17: este claim estaba obsoleto desde antes de
+      Fase H — declaraba NOT_SUPPORTED cuando el módulo ya existía y
+      estaba probado. Pendiente real, y sí crítico: mcp_gateway.
+      Gateway.authorize() (el gate que hoy gobierna execute de verdad)
+      NO consulta SafetyEnvelope ni VerificationResult -- cero
+      referencias por grep. El camino de ejecución real sigue protegido
+      solo por target_allowlist+Approval (CLAIM-001/006), no por Safety
+      Kernel/Verifier todavía.
+    controls:
+      - argos-core/services/safety_kernel/__init__.py
+      - argos-core/services/independent_verifier/__init__.py
+    tests:
+      - argos-core/tests/unit/test_safety_kernel.py
+      - argos-core/tests/unit/test_independent_verifier.py
+      - argos-core/tests/integration/test_k1_mission_verifier_vertical_slice.py
+    metric: safety_envelope_gateway_integration_rate
+    run_evidence: "argos-core pytest, 376 tests (verificado 2026-08-17); grep de mcp_gateway/__init__.py sin resultados para SafetyEnvelope/independent_verifier (verificado 2026-08-17)"
     residual_risk: >
-      No existe ningún código de Safety Kernel/SafetyEnvelope/
-      Independent Verifier/RuntimeTrustContext en ningún repo
-      (verificado: cero resultados para esos términos fuera de
-      documentos de gap-analysis). Es la brecha de mayor prioridad según
-      ADR-051 — Fase H.
-    state: NOT_SUPPORTED
+      CRITICAL (ver architecture/implementation-readiness.md §5, R0-01):
+      Safety Kernel/Verifier son correctos y probados de forma aislada,
+      pero no están conectados al gate de ejecución real
+      (mcp_gateway.Gateway.authorize). SAFE_TO_EVALUATE sigue sin ser
+      alcanzable con datos reales hoy (runbook_signed/runtime_trust_valid
+      estructuralmente None, Sovereign Root of Trust no existe).
+    state: PARTIALLY_SUPPORTED
+    gate: G5
+
+  - id: CLAIM-011
+    requirement: "Un FederatedArtifact remoto nunca concede autoridad de ejecución local"
+    statement: >
+      ACCEPT/QUARANTINE/REJECT/LOCAL_REVALIDATION_REQUIRED de Federation
+      nunca produce, por sí solo, un ActionRequest ejecutable ni una
+      Approval.
+    argument: >
+      FederationDecision.is_active es una propiedad estructural siempre
+      False; SafetyCheckInput (safety_kernel) no tiene ningún campo que
+      un FederatedArtifact/FederationDecision pueda rellenar (probado
+      por introspección de dataclasses.fields).
+    controls:
+      - argos-core/services/federation/decision.py
+      - argos-core/services/safety_kernel/__init__.py
+    tests:
+      - argos-core/tests/integration/test_federation_safety_vertical_slice.py
+      - argos-core/tests/adversarial/test_federation_adversarial.py
+    metric: federation_authority_amplification_rate
+    run_evidence: "argos-core pytest, 376 tests incl. 24 tests de rebanada vertical de seguridad + adversarial (verificado 2026-08-17)"
+    residual_risk: >
+      Probado dentro de argos-core únicamente (Safety Kernel/Verifier
+      viven ahí). No incluye la ruta completa hasta OPA/HITL
+      (argos-cyber-tools/argos-smartops) por el límite real entre
+      repos — ver CLAIM-009 para el hueco de integración del gateway.
+    state: SUPPORTED
+    gate: null
+
+  - id: CLAIM-012
+    requirement: "UNKNOWN de misión/verificación nunca se trata como impacto cero ni como VERIFIED"
+    statement: >
+      Un MissionContext ausente o insuficiente produce
+      INSUFFICIENT_CONTEXT, nunca NONE/LOW; un Independent Verifier sin
+      hechos frescos suficientes produce INCONCLUSIVE, nunca VERIFIED.
+    argument: >
+      mission_context._mission_level() retorna INSUFFICIENT_CONTEXT
+      explícitamente cuando falta contexto; independent_verifier.verify()
+      solo produce VERIFIED cuando ningún check es None ni False
+      (fail-closed, mismo criterio que safety_kernel.decide_state).
+    controls:
+      - argos-core/services/mission_context/__init__.py
+      - argos-core/services/independent_verifier/__init__.py
+    tests:
+      - argos-core/tests/unit/test_mission_context.py
+      - argos-core/tests/unit/test_independent_verifier.py
+      - argos-core/tests/integration/test_k1_mission_verifier_vertical_slice.py
+    metric: unknown_treated_as_safe_rate
+    run_evidence: "argos-core pytest, 376 tests (verificado 2026-08-17)"
+    residual_risk: "Probado dentro de argos-core; mismo límite de integración de CLAIM-009."
+    state: SUPPORTED
     gate: null
 
   - id: CLAIM-010
@@ -248,7 +317,7 @@ claims:
       - "argos-core/tests/integration/test_evidence_vertical_slice.py"
     metric: "chain_verification_pass_rate"
     run_evidence:
-      - "204 tests reales en argos-core (commit pendiente de push), incluye vertical slice con las 3 acciones execute reales de Fase I"
+      - "376 tests reales en argos-core (commit 0afbbc74146d6b1fa55bc1d486515fedb1a7b9ec, verificado 2026-08-17 en la reconciliación global A→L), incluye vertical slice con las 3 acciones execute reales de Fase I y la integración de evidencia de Fase K/L reutilizando el mismo mecanismo"
     residual_risk: >
       LOGICALLY_APPEND_ONLY / TAMPER_EVIDENT, NO immutable: backend en
       memoria + JSONL opcional, sin object-lock/WORM real (Ceph RGW no

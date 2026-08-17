@@ -1,0 +1,349 @@
+# Global A→L Evidence & Readiness Reconciliation — master capability matrix.
+#
+# Cubre EXCLUSIVAMENTE el roadmap A→L adoptado en ADR-051 (Fases G en
+# adelante son las que introdujeron código nuevo real; A-F son gobierno
+# documental/MVP ya existente). Para el backlog original ARG-001..028 y
+# los gates G0-G7 del documento maestro v0.5, la fuente autoritativa YA
+# EXISTE y no se duplica aquí: `argos-validation/traceability.yaml`
+# (gate->story->contrato->test->métrica) y
+# `architecture/v0.6.25-gap-matrix.md` (huecos por sección del prompt).
+# Este archivo es su complemento para el TRAMO que esos dos documentos no
+# cubren: ADR-053..067 (Fases G[parcial]/H/I/J/K/K.1/L), que por diseño
+# de ADR-051 nacieron fuera del backlog ARG-001..028.
+#
+# Vocabulario de madurez: ver architecture/implementation-readiness.md §3.
+# No hay campo "score" ni porcentaje agregado a propósito (§21 de la
+# reconciliación: no promediar huecos críticos con GREEN).
+
+schema_version: 1
+generated_at: "2026-08-17"
+reconciliation_scope: "Fases A-L (ADR-051..067), FEATURE_FREEZE_A_L=TRUE"
+
+repositories_at_generation:
+  argos-control:            { commit: "92c43257db7eeb57d1a3816587232c34c1b9709b", branch: main, dirty: false }
+  argos-platform:            { commit: "6062c9f1ce42a5ec080677a99431cfa12721bd59", branch: main, dirty: false }
+  argos-contracts-scenarios: { commit: "7f26630279e3f85027fc6e1734e9127edb920b9a", branch: main, dirty: false }
+  argos-core:                { commit: "0afbbc74146d6b1fa55bc1d486515fedb1a7b9ec", branch: main, dirty: false }
+  argos-cyber-tools:         { commit: "186a6bfb2be4d7628e9aee474a619b940afb71a8", branch: main, dirty: false }
+  argos-validation:          { commit: "b621a75e08c0b061e7ad20c4101714851f90366b", branch: main, dirty: false }
+  argos-smartops:            { commit: "62f05ac6a2a5297d17d06036045781d6490448a1", branch: main, dirty: false }
+
+capabilities:
+
+  - capability_id: CAP-A-01
+    capability: "Gobierno documental Fase A (assurance/, ai-governance/)"
+    phase: A
+    adr_refs: [ADR-051]
+    arg_refs: []
+    repositories: [argos-control]
+    implementation_paths: [assurance/argos-assurance.yaml, ai-governance/ai-component-registry.yaml]
+    test_paths: [argos-control/scripts/test.sh]
+    test_count: null
+    evidence_level: E1
+    environment: local
+    external_dependency: none
+    current_state: IMPLEMENTED_LOCALLY
+    residual_gap: "Ledger mantenido a mano, no autogenerado; CLAIM-009 estaba obsoleto hasta esta reconciliación (corregido)."
+    owner: poa-architecture
+    next_action: "Ninguna — mantenimiento continuo del ledger conforme avancen fases."
+
+  - capability_id: CAP-G-01
+    capability: "ToolManifest v1: side_effect_class, rate_limit, DENY incondicional IRREVERSIBLE/DESTRUCTIVE, Version Downgrade"
+    phase: G
+    adr_refs: [ADR-053]
+    arg_refs: []
+    repositories: [argos-cyber-tools]
+    implementation_paths: [tool_catalog/]
+    test_paths: [argos-cyber-tools/tests/authorization]
+    test_count: null
+    evidence_level: E4
+    environment: local
+    external_dependency: none
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "Ninguno de diseño. UNMAPPED_IMPLEMENTATION frente a ARG-001..028 (ver §7 del informe)."
+    owner: cyb-engineer
+    next_action: "Ninguna. Decisión de mapeo ARG pendiente de aprobación del usuario (§8)."
+
+  - capability_id: CAP-H-01
+    capability: "Deterministic Safety Kernel + SafetyEnvelope v1 (contrato 11)"
+    phase: H
+    adr_refs: [ADR-054]
+    arg_refs: []
+    repositories: [argos-core, argos-contracts-scenarios]
+    implementation_paths: [argos-core/services/safety_kernel]
+    test_paths: [argos-core/tests/unit/test_safety_kernel.py]
+    test_count: null
+    evidence_level: E3
+    environment: local
+    external_dependency: "runbook_signed y runtime_trust_valid dependen de Sovereign Root of Trust (no existe)"
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "SAFE_TO_EVALUATE no alcanzable hoy: 2/14 checks estructuralmente None (runbook_signed, runtime_trust_valid). No consumido todavía por OPA real (InMemoryPolicyDecisionPoint)."
+    owner: aie-engineer
+    next_action: "Ninguna funcional. UNMAPPED_IMPLEMENTATION frente a ARG-001..028."
+
+  - capability_id: CAP-H-02
+    capability: "Independent Verification Barrier (re-confirma SafetyEnvelope con hechos frescos)"
+    phase: H
+    adr_refs: [ADR-055]
+    arg_refs: []
+    repositories: [argos-core]
+    implementation_paths: [argos-core/services/independent_verifier]
+    test_paths: [argos-core/tests/unit/test_independent_verifier.py]
+    test_count: null
+    evidence_level: E4
+    environment: local
+    external_dependency: none
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "VERIFIED alcanzable por un checkout real cuando se confirman todos los hechos frescos; INCONCLUSIVE/REJECTED -> ZERO EXECUTE probado."
+    owner: aie-engineer
+    next_action: "Ninguna. UNMAPPED_IMPLEMENTATION."
+
+  - capability_id: CAP-I-01
+    capability: "Executor real para increase_monitoring (backend Wazuh) — cierra las 3 acciones execute del catálogo"
+    phase: I
+    adr_refs: [ADR-056]
+    arg_refs: [ARG-021]
+    repositories: [argos-cyber-tools]
+    implementation_paths: [argos-cyber-tools/executors]
+    test_paths: [argos-cyber-tools/tests/idempotency, argos-cyber-tools/tests/rollback]
+    test_count: null
+    evidence_level: E5
+    environment: local
+    external_dependency: "Shuffle HTTP real (BLOCKED_EXTERNAL) — orquestación real de playbooks no existe, solo el executor in-memory"
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "REAL_SHUFFLE_INTEGRATION=BLOCKED_EXTERNAL. Cluster real no disponible (ENV-QUAL-01) — probado contra FakeClusterState."
+    owner: cyb-engineer
+    next_action: "Ninguna local. Desbloqueo depende de instancia Shuffle + cluster real."
+
+  - capability_id: CAP-J-01
+    capability: "EvidenceManifest -> EvidenceRoot determinista (sin Merkle, decisión documentada)"
+    phase: J
+    adr_refs: [ADR-057]
+    arg_refs: []
+    repositories: [argos-core]
+    implementation_paths: [argos-core/services/evidence_writer, argos-core/services/evidence_root]
+    test_paths: [argos-core/tests/unit/test_evidence_root.py, argos-core/tests/unit/test_evidence_j_invariants.py]
+    test_count: null
+    evidence_level: E5
+    environment: local
+    external_dependency: "Ceph RGW no desplegado (ARG-026) — object_ref con esquema de URI documentado, escritura física pendiente"
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "Sin firma criptográfica (sin PKI). Cierra CLAIM-010 (assurance) en su ámbito local."
+    owner: pse-engineer
+    next_action: "Ninguna local. UNMAPPED_IMPLEMENTATION."
+
+  - capability_id: CAP-J-02
+    capability: "Local Transparency Log (hash-chain) + TransparencyReceipt + replay/reconstrucción"
+    phase: J
+    adr_refs: [ADR-057]
+    arg_refs: []
+    repositories: [argos-core]
+    implementation_paths: [argos-core/services/evidence_root/transparency_log.py, argos-core/services/evidence_root/replay.py]
+    test_paths: [argos-core/tests/unit/test_transparency_log.py, argos-core/tests/unit/test_replay.py, argos-core/tests/integration/test_evidence_vertical_slice.py]
+    test_count: null
+    evidence_level: E4
+    environment: local
+    external_dependency: "PKI/Sovereign Root of Trust ausente; WORM/object-lock físico ausente"
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "LOGICALLY_APPEND_ONLY/TAMPER_EVIDENT, NO IMMUTABLE. Cryptographic receipt signature = BLOCKED_EXTERNAL. Physical WORM = BLOCKED_EXTERNAL."
+    owner: pse-engineer
+    next_action: "Ninguna local."
+
+  - capability_id: CAP-K-01
+    capability: "Semantic Cyber Graph (CyberSemanticEntity/SemanticRelation, sin generación LLM)"
+    phase: K
+    adr_refs: [ADR-058]
+    arg_refs: []
+    repositories: [argos-core]
+    implementation_paths: [argos-core/services/semantic_graph]
+    test_paths: [argos-core/tests/unit/test_semantic_graph.py]
+    test_count: 15
+    evidence_level: E3
+    environment: local
+    external_dependency: none
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "Ninguno de diseño. No duplica argos-cyber-tools/graph (ARG-011..014)."
+    owner: aie-engineer
+    next_action: "Ninguna. UNMAPPED_IMPLEMENTATION."
+
+  - capability_id: CAP-K-02
+    capability: "Temporal Knowledge (query_at(T), future_information_leakage=0)"
+    phase: K
+    adr_refs: [ADR-059]
+    arg_refs: []
+    repositories: [argos-core]
+    implementation_paths: [argos-core/services/temporal_knowledge]
+    test_paths: [argos-core/tests/unit/test_temporal_knowledge.py]
+    test_count: 10
+    evidence_level: E3
+    environment: local
+    external_dependency: none
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "Ninguno de diseño."
+    owner: aie-engineer
+    next_action: "Ninguna."
+
+  - capability_id: CAP-K-03
+    capability: "MissionContext + blast radius técnico/operacional/misión (UNKNOWN != impacto cero)"
+    phase: K
+    adr_refs: [ADR-060, ADR-063]
+    arg_refs: []
+    repositories: [argos-core]
+    implementation_paths: [argos-core/services/mission_context]
+    test_paths: [argos-core/tests/unit/test_mission_context.py]
+    test_count: 14
+    evidence_level: E4
+    environment: local
+    external_dependency: "Mission source externo (registro de misión real) no existe"
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "MISSION_SOURCE_INTEGRATION=CONTRACTUAL/EMULATED (hechos suministrados por el llamante, sin fuente externa real). maximum_outage capturado, sin semántica de comparación activa genérica (KNOWN_GAP/DEFERRED_POLICY_SEMANTICS)."
+    owner: aie-engineer
+    next_action: "Ninguna local. Desbloqueo depende de un registro de misión externo real."
+
+  - capability_id: CAP-K-04
+    capability: "Semantic Conflict + Authority precedence (determinista, gobernado)"
+    phase: K
+    adr_refs: [ADR-061]
+    arg_refs: []
+    repositories: [argos-core]
+    implementation_paths: [argos-core/services/semantic_conflict, argos-core/services/asset_reconciler]
+    test_paths: [argos-core/tests/unit/test_semantic_conflict.py, argos-core/tests/unit/test_asset_reconciler.py]
+    test_count: 16
+    evidence_level: E4
+    environment: local
+    external_dependency: none
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "Ninguno de diseño. Extiende asset_reconciler sin duplicar."
+    owner: aie-engineer
+    next_action: "Ninguna."
+
+  - capability_id: CAP-K-05
+    capability: "Integración MissionContext en Safety Kernel (mission_impact_bounded real)"
+    phase: K
+    adr_refs: [ADR-062]
+    arg_refs: []
+    repositories: [argos-core]
+    implementation_paths: [argos-core/services/safety_kernel]
+    test_paths: [argos-core/tests/unit/test_safety_kernel.py]
+    test_count: null
+    evidence_level: E3
+    environment: local
+    external_dependency: none
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "Reduce checks NOT_EVALUATED de 3 a 2 cuando se suministra el hecho. MissionContext nunca decide autorización (invariante probado)."
+    owner: aie-engineer
+    next_action: "Ninguna."
+
+  - capability_id: CAP-K1-01
+    capability: "Independent Verifier consciente de misión (mission_constraints_respected real)"
+    phase: K.1
+    adr_refs: [ADR-055, ADR-062]
+    arg_refs: []
+    repositories: [argos-core, argos-contracts-scenarios]
+    implementation_paths: [argos-core/services/independent_verifier, argos-core/services/safety_kernel]
+    test_paths: [argos-core/tests/integration/test_k1_mission_verifier_vertical_slice.py]
+    test_count: 6
+    evidence_level: E4
+    environment: local
+    external_dependency: none
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "Ninguno de diseño. UNKNOWN nunca produce VERIFIED (probado). Consistencia temporal probada (T1 sellado != T2 recalculado)."
+    owner: aie-engineer
+    next_action: "Ninguna."
+
+  - capability_id: CAP-L-01
+    capability: "SecurityDomain v1 + aislamiento tenant/dominio deny-by-default"
+    phase: L
+    adr_refs: [ADR-064]
+    arg_refs: []
+    repositories: [argos-core]
+    implementation_paths: [argos-core/services/federation/security_domain.py]
+    test_paths: [argos-core/tests/unit/test_security_domain.py]
+    test_count: 6
+    evidence_level: E4
+    environment: local
+    external_dependency: none
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "Ninguno de diseño."
+    owner: aie-engineer
+    next_action: "Ninguna. UNMAPPED_IMPLEMENTATION (ver §8 del informe)."
+
+  - capability_id: CAP-L-02
+    capability: "FederatedArtifact v1 + FederationDecision (evaluación de confianza local, sin promediar)"
+    phase: L
+    adr_refs: [ADR-065]
+    arg_refs: []
+    repositories: [argos-core]
+    implementation_paths: [argos-core/services/federation/federated_artifact.py, argos-core/services/federation/decision.py, argos-core/services/federation/ledger.py, argos-core/services/federation/revocation.py]
+    test_paths: [argos-core/tests/unit/test_federated_artifact.py, argos-core/tests/unit/test_federation_decision.py, argos-core/tests/unit/test_federation_ledger_and_revocation.py]
+    test_count: 26
+    evidence_level: E4
+    environment: local
+    external_dependency: none
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "ACCEPT != ACTIVE probado estructuralmente (is_active siempre False)."
+    owner: aie-engineer
+    next_action: "Ninguna. UNMAPPED_IMPLEMENTATION."
+
+  - capability_id: CAP-L-03
+    capability: "CrossDomainTransfer v1 + IFC + sanitización determinista"
+    phase: L
+    adr_refs: [ADR-066]
+    arg_refs: []
+    repositories: [argos-core]
+    implementation_paths: [argos-core/services/federation/cross_domain_transfer.py, argos-core/services/federation/ifc.py, argos-core/services/federation/sanitizer.py]
+    test_paths: [argos-core/tests/unit/test_cross_domain_transfer.py, argos-core/tests/unit/test_federation_ifc.py, argos-core/tests/unit/test_federation_sanitizer.py]
+    test_count: 27
+    evidence_level: E4
+    environment: local
+    external_dependency: none
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "Downgrade de clasificación siempre exige REQUIRE_APPROVAL explícita, nunca automático."
+    owner: aie-engineer
+    next_action: "Ninguna. UNMAPPED_IMPLEMENTATION."
+
+  - capability_id: CAP-L-04
+    capability: "Transporte de prueba TEST_LOCAL + integración de evidencia de Federation con Fase J"
+    phase: L
+    adr_refs: [ADR-067]
+    arg_refs: []
+    repositories: [argos-core]
+    implementation_paths: [argos-core/services/federation/transport.py, argos-core/services/federation/evidence.py]
+    test_paths: [argos-core/tests/unit/test_federation_transport.py, argos-core/tests/integration/test_federation_evidence_integration.py]
+    test_count: 12
+    evidence_level: E3
+    environment: local
+    external_dependency: "REAL_TRANSPORT=BLOCKED_EXTERNAL (sin segundo sitio ARGOS real)"
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "Ancla bajo EVIDENCE_ROOT_CREATED genérico (decisión documentada, ver ADR-067) — no amplía VALID_EVENT_TYPES."
+    owner: aie-engineer
+    next_action: "Ninguna local. Desbloqueo depende de un segundo sitio ARGOS real."
+
+  - capability_id: CAP-L-05
+    capability: "Rebanadas verticales Federation (normal + seguridad) y suite adversarial (18 casos)"
+    phase: L
+    adr_refs: [ADR-064, ADR-065, ADR-066, ADR-067]
+    arg_refs: []
+    repositories: [argos-core]
+    implementation_paths: [argos-core/services/federation]
+    test_paths: [argos-core/tests/integration/test_federation_vertical_slice.py, argos-core/tests/integration/test_federation_safety_vertical_slice.py, argos-core/tests/adversarial/test_federation_adversarial.py]
+    test_count: 24
+    evidence_level: E4
+    environment: local
+    external_dependency: none
+    current_state: IMPLEMENTED_LOCALLY_AND_TESTED
+    residual_gap: "Prueba estructural (no solo funcional) de que SafetyCheckInput no tiene campo alguno que federación pueda rellenar."
+    owner: aie-engineer
+    next_action: "Ninguna."
+
+unmapped_implementation_summary:
+  description: >
+    ADR-053 en adelante (Fases G[parcial]/H/I/J/K/K.1/L) no tienen
+    story ARG-001..028 asociada — confirmado por inspección de la
+    sección "Historia relacionada" de cada ADR. ADR-052 es el último con
+    mapeo ARG directo (ARG-002/003). Esto NO es exclusivo de Federation:
+    es el patrón de TODO el tramo post-ADR-051 del roadmap A->L, adoptado
+    deliberadamente fuera del backlog original (ver ADR-051, Consecuencia).
+  adr_range: "ADR-053..067 (15 ADR)"
+  classification: UNMAPPED_IMPLEMENTATION_CANDIDATE
+  resolution: "Ver architecture/implementation-readiness.md §8 — decisión pendiente de aprobación del usuario, no resuelta automáticamente aquí."
