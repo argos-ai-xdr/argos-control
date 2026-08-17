@@ -25,5 +25,6 @@ Todas las decisiones ADR-001 a ADR-013 provienen del documento maestro v0.5 (sec
 | [ADR-019](ADR-019-tool-manifest-v1-secure-lifecycle.md) | ToolManifest v1 (Fase G) — `side_effect_class`, `rate_limit`, DENY incondicional de IRREVERSIBLE/DESTRUCTIVE, Version Downgrade | RESUELTO PARA BASELINE |
 | [ADR-020](ADR-020-safety-kernel-and-safety-envelope-v1.md) | Deterministic Safety Kernel + SafetyEnvelope v1, contrato 11 (Fase H) — producido, aún no consumido por OPA | RESUELTO PARA BASELINE — alcance explícitamente acotado |
 | [ADR-021](ADR-021-independent-verifier.md) | Independent Verification Barrier (Fase H) — re-confirma el SafetyEnvelope con hechos frescos; INCONCLUSIVE/REJECTED → ZERO EXECUTE | RESUELTO PARA BASELINE — alcance explícitamente acotado |
+| [ADR-022](ADR-022-increase-monitoring-executor.md) | Executor real para `increase_monitoring` (Fase I) — backend Wazuh, cierra el último hueco de las 3 acciones execute del catálogo | RESUELTO PARA BASELINE |
 
 Plantilla para ADR nuevos: `../templates/adr/ADR-template.md`. Proponer uno nuevo vía el issue template `architecture-decision.yaml`.
