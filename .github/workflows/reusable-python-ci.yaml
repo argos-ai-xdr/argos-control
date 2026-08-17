@@ -50,7 +50,7 @@ jobs:
           repository: argos-ai-xdr/argos-contracts-scenarios
           ref: ${{ inputs.contracts-ref }}
           path: _contracts-scenarios
-          token: ${{ secrets.CONTRACTS_CHECKOUT_TOKEN }}
+          token: ${{ secrets.DIAGNOSTIC_TEST_NAME_NO_MATCH }}
 
       - uses: actions/setup-python@v5
         with:
