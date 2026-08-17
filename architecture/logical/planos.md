@@ -9,7 +9,7 @@ La baseline ejecutable (documento maestro v0.5, 6.2) se organiza en seis planos 
 | P3 IA/política | `argos-ai`: LangGraph API, vLLM; `argos-policy`: OPA; `argos-mcp`: tool gateway | Proponer opciones y evaluar política. Sin credenciales directas de enforcement. | `argos-core` (recommendation), `argos-cyber-tools` (mcp-gateway, políticas OPA) |
 | P4 SOAR/enforcement | `argos-soar`: Shuffle; `argos-cyber-range`: ejecutores Cilium/K8s | Dry-run y ejecución reversible solo con `approval_id` válido, target autorizado e `idempotency_key`. | `argos-cyber-tools` |
 | P5 Operación | `argos-smartops`: UI/API; `argos-soc-adapter` | Presentar contexto inmutable, aprobar/rechazar, monitorizar y exportar handover filtrado. | `argos-smartops`, `argos-core` (soc-adapter) |
-| P6 Evidencia/plataforma | `argos-observability`: OTel/Prometheus/Grafana; `argos-evidence`: OpenSearch + Ceph RGW | Trazas, métricas, manifiestos, hashes, retención y reconstrucción de cada run. | `argos-platform` |
+| P6 Evidencia/plataforma | `argos-observability`: OTel/Prometheus/Grafana, SPIRE Server, OpenBao; `argos-evidence`: OpenSearch + Ceph RGW | Trazas, métricas, manifiestos, hashes, retención y reconstrucción de cada run. | `argos-platform` |
 
 ## Principios (documento maestro v0.5, 6.1)
 
@@ -20,4 +20,4 @@ La baseline ejecutable (documento maestro v0.5, 6.2) se organiza en seis planos 
 * **Reproducibilidad offline**: imágenes, modelos, políticas, datasets, CTI, schemas y runbooks quedan fijados por versión, digest y hash antes de aceptación.
 * **Open source y portabilidad**: cada capacidad P0 tiene alternativa autogestionable y formato de salida abierto (ver ADR-013).
 
-Namespaces mínimos a crear en `argos-platform`: `argos-xdr`, `argos-cti`, `argos-ai`, `argos-policy`, `argos-mcp`, `argos-soar`, `argos-smartops`, `argos-observability`, `argos-evidence`, `argos-cyber-range`.
+Namespaces mínimos a crear en `argos-platform`: `argos-xdr`, `argos-cti`, `argos-ai`, `argos-policy`, `argos-mcp`, `argos-soar`, `argos-smartops`, `argos-observability`, `argos-evidence`, `argos-cyber-range`. Este conjunto es cerrado (validado en `argos-platform/scripts/test.sh`); SPIRE/OpenBao no amplían la lista — se alojan en `argos-observability` por ubicación, no porque sean responsabilidad de P6 (sirven a los seis planos por igual, ver ADR-018).

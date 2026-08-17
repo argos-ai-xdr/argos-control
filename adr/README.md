@@ -21,5 +21,6 @@ Todas las decisiones ADR-001 a ADR-013 provienen del documento maestro v0.5 (sec
 | [ADR-015](ADR-015-cicd-gitops.md) | CI/CD centralizado y despliegue GitOps | RESUELTO |
 | [ADR-016](ADR-016-evidence-storage-policy.md) | Política de almacenamiento de evidencia fuera de Git | RESUELTO |
 | [ADR-017](ADR-017-incremental-v0625-roadmap-adoption.md) | Adopción incremental de la hoja de ruta v0.6.25.x (Fases A→L); ~32 contratos v1 nuevos explícitamente diferidos | RESUELTO PARA BASELINE — alcance de contratos diferido |
+| [ADR-018](ADR-018-platform-baseline-namespace-placement.md) | Ubicación de namespace para SPIRE y OpenBao (Fase B) — sin namespace nuevo, ambos en `argos-observability` | RESUELTO PARA BASELINE |
 
 Plantilla para ADR nuevos: `../templates/adr/ADR-template.md`. Proponer uno nuevo vía el issue template `architecture-decision.yaml`.
