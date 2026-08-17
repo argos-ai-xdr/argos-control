@@ -50,5 +50,9 @@ items:
   - {id: ARG-024, epic: E3, sprint: S7, priority: P0, sp: 8,  story: "Suite adversarial F09, regresión y expected blocks", dependencies: [ARG-006, ARG-023], repo: argos-validation}
   - {id: ARG-025, epic: E8, sprint: S7, priority: P0, sp: 8,  story: "Backup/restore, retry, interrupción e idempotencia", dependencies: [ARG-023], repo: argos-platform}
   - {id: ARG-026, epic: E7, sprint: S7, priority: P1, sp: 8,  story: "Evidence store, dashboards y paquete firmado", dependencies: [ARG-015, ARG-023], repo: multi}
-  - {id: ARG-027, epic: E8, sprint: S8, priority: P0, sp: 8,  story: "Automatizar AC01-AC14, DRR y release candidate", dependencies: [ARG-024, ARG-025, ARG-026], repo: argos-validation}
+  # Redacción alineada con la propuesta v0.6.25.4 (changelog 0.6.8:
+  # "rectificación ARG-027 de DRR a ARR/G7") — este archivo seguía con la
+  # redacción anterior ("DRR y release candidate"), desincronizado del
+  # documento maestro vigente.
+  - {id: ARG-027, epic: E8, sprint: S8, priority: P0, sp: 8,  story: "Acceptance runner AC01-AC14, ARR/G7 y validación inmutable de la release candidate", dependencies: [ARG-024, ARG-025, ARG-026], repo: argos-validation}
   - {id: ARG-028, epic: E8, sprint: S8, priority: P0, sp: 8,  story: "Ensayo final, demo, as-built, runbooks y handover", dependencies: [ARG-027], repo: multi}
