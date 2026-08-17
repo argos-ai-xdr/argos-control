@@ -1,0 +1,64 @@
+# AI Component Registry (prompt maestro de arquitectura objetivo §35;
+# ADR-017, Fase A).
+#
+# Estados: DRAFT | REGISTERED | EVALUATED | APPROVED | SHADOW | CANARY |
+# ACTIVE | DEPRECATED | REVOKED | RETIRED.
+# Regla dura del prompt: nunca DRAFT → ACTIVE directo.
+#
+# Alcance deliberadamente estrecho: solo motores de recomendación
+# (los únicos componentes "de IA" reales o interfaz-real que existen
+# hoy). Tools/policies/runbooks/evaluators YA tienen su propio registro
+# real y más específico — no se duplican aquí:
+#   - Tools: argos-cyber-tools/tool_catalog/ (definitions/ +
+#     signatures/catalog.manifest.json, integridad por hash real)
+#   - Evaluadores: argos-validation/evaluators/README.md
+#   - Umbrales/gates: argos-validation/thresholds/*.yaml
+# Si una fase futura (Fase G, Agentic RAG) añade agent graphs/embedding
+# models/corpus/índices reales, se registran aquí como entradas nuevas
+# en ese momento — no antes, no como huecos vacíos.
+
+schema_version: 1
+
+components:
+  - component_id: deterministic-fallback-engine
+    type: deterministic_engine  # NO es un modelo de IA/generativo — ver nota
+    owner: argos-core
+    location: argos-core/services/recommendation/__init__.py::DeterministicFallbackEngine
+    state: ACTIVE
+    state_history_note: >
+      Sin registro formal antes de este documento — no se puede afirmar
+      una progresión DRAFT→REGISTERED→EVALUATED→APPROVED→SHADOW→
+      CANARY→ACTIVE retroactiva que nunca ocurrió como proceso. Se
+      registra en ACTIVE porque ES el motor real en uso (probado,
+      ejecutado en cada suite de aceptación), no porque haya pasado por
+      este flujo — la regla "nunca DRAFT→ACTIVE" se aplica desde AHORA
+      en adelante para cualquier cambio a este componente o cualquier
+      componente nuevo.
+    evaluation_evidence:
+      - argos-core/tests/unit/test_recommendation.py
+      - "argos-validation/harness/acceptance.py (Recommendation validada contra schema en cada suite)"
+    generative: false
+    notes: >
+      ADR-008: fallback determinista por reglas de severidad, sin LLM,
+      sin red. Es el motor REAL que produce toda Recommendation hoy.
+
+  - component_id: langgraph-engine
+    type: agent_graph
+    owner: argos-core
+    location: argos-core/services/recommendation/__init__.py::LangGraphEngine
+    state: DRAFT
+    state_history_note: >
+      Interfaz documentada (Protocol-compatible), sin implementación —
+      generate() lanza NotImplementedError explícitamente. Bloqueado en
+      DEP-06 (vLLM/GPU soberano no disponible) y ARG-019 (grafo
+      LangGraph real). No puede promocionarse de DRAFT hasta que ambos
+      bloqueos se resuelvan Y exista una evaluación real (Fase G).
+    evaluation_evidence: []
+    generative: true
+    notes: >
+      ADR-008: "el LLM no decide autorización; su salida pasa por el
+      mismo validate_payload que el fallback determinista, sin
+      excepciones" — invariante ya fijado ANTES de que este componente
+      exista, para que su futura promoción no pueda relajarlo.
+
+promotion_rule: "DRAFT -> ACTIVE directo: PROHIBIDO. Toda promoción intermedia exige evaluation_evidence no vacío."

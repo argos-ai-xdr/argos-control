@@ -98,6 +98,32 @@ if assurance_path.exists():
 else:
     errors.append("assurance/argos-assurance.yaml no existe")
 
+# AI Component Registry: estados válidos, sin ids duplicados, y ningún
+# componente más allá de DRAFT sin evaluation_evidence (aplica la regla
+# "nunca DRAFT -> ACTIVE" exigiendo evidencia real para cualquier estado
+# posterior, no solo prohibiendo el salto textualmente).
+registry_path = root / "ai-governance/ai-component-registry.yaml"
+VALID_COMPONENT_STATES = {
+    "DRAFT", "REGISTERED", "EVALUATED", "APPROVED", "SHADOW", "CANARY",
+    "ACTIVE", "DEPRECATED", "REVOKED", "RETIRED",
+}
+if registry_path.exists():
+    registry = yaml.safe_load(registry_path.read_text(encoding="utf-8")) or {}
+    ai_components = registry.get("components", [])
+    ai_ids = [c.get("component_id") for c in ai_components]
+    dupes = {i for i in ai_ids if ai_ids.count(i) > 1}
+    if dupes:
+        errors.append(f"ai-component-registry.yaml: component_id duplicado {sorted(dupes)}")
+    for comp in ai_components:
+        cid = comp.get("component_id", "<sin id>")
+        state = comp.get("state")
+        if state not in VALID_COMPONENT_STATES:
+            errors.append(f"ai-component-registry.yaml: {cid} tiene state={state!r} inválido")
+        if state not in (None, "DRAFT") and not comp.get("evaluation_evidence"):
+            errors.append(f"ai-component-registry.yaml: {cid} está en {state!r} sin evaluation_evidence")
+else:
+    errors.append("ai-governance/ai-component-registry.yaml no existe")
+
 if errors:
     print("TEST FALLIDO:")
     for e in errors:
