@@ -1,0 +1,37 @@
+{
+  "$comment": "Plantilla del contrato EvidenceManifest v1 (documento maestro v0.5, 5.5/6.5) y de manifest.json (5.8). Rellenar por evidence-writer (argos-core); nunca editar a mano un manifiesto ya emitido (ADR-006/ADR-016).",
+  "manifest_version": "manifest.v1",
+  "run_id": "TODO-ULID-o-UUID",
+  "created_at": "TODO-RFC3339-UTC",
+  "release": "TODO (p. ej. 0.1.0-dev, ver ../../releases/)",
+  "commit": "TODO",
+  "classification": "internal",
+  "retention": {
+    "policy": "TODO",
+    "expires_at": "TODO"
+  },
+  "artifacts": [
+    {
+      "artifact_id": "TODO-ULID-o-UUID",
+      "producer": "TODO (p. ej. evidence-writer, correlator, shuffle-executor)",
+      "media_type": "TODO (p. ej. application/x-ndjson, image/png, application/json)",
+      "object_ref": "TODO (referencia Ceph RGW o artefacto OCI, nunca el contenido inline si es grande)",
+      "sha256": "TODO"
+    }
+  ],
+  "images": {
+    "TODO-nombre-servicio": "TODO-registry/argos/servicio@sha256:..."
+  },
+  "policies": {
+    "opa_policy_version": "TODO"
+  },
+  "runbooks": [
+    "TODO (referencia a templates/runbook usados en este run)"
+  ],
+  "prompts": {
+    "TODO": "referencia versionada al prompt usado, no el chain-of-thought (prohibido, ver ADR-016)"
+  },
+  "evidence_refs": [
+    "TODO (event_id, incident_id, recommendation_id, action_id relacionados)"
+  ]
+}

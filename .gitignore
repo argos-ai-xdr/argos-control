@@ -23,6 +23,13 @@ node_modules/
 *.local.yaml
 secrets/
 
-# Generated evidence/reports (must live in Ceph RGW / OCI artifacts, not Git)
-evidence/
+# Generated evidence/reports (must live in Ceph RGW / OCI artifacts, not Git).
+# Anclado a la raíz (/evidence/): un patrón sin la barra inicial coincide
+# con CUALQUIER directorio "evidence" del árbol, y silenciosamente dejó
+# fuera de git a templates/evidence/evidence-manifest-template.json desde
+# siempre — un archivo real, referenciado por
+# templates/runbook/runbook-template.md, que nunca llegó a versionarse.
+# Mismo bug encontrado y corregido en argos-validation
+# (harness/evidence/manifest.py, revisando `git status --ignored`).
+/evidence/
 reports/generated/
