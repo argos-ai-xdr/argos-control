@@ -27,5 +27,11 @@ Todas las decisiones ADR-001 a ADR-013 provienen del documento maestro v0.5 (sec
 | [ADR-055](ADR-055-independent-verifier.md) | Independent Verification Barrier (Fase H) — re-confirma el SafetyEnvelope con hechos frescos; INCONCLUSIVE/REJECTED → ZERO EXECUTE | RESUELTO PARA BASELINE — alcance explícitamente acotado |
 | [ADR-056](ADR-056-increase-monitoring-executor.md) | Executor real para `increase_monitoring` (Fase I) — backend Wazuh, cierra el último hueco de las 3 acciones execute del catálogo | RESUELTO PARA BASELINE |
 | [ADR-057](ADR-057-evidence-root-and-local-transparency-log.md) | EvidenceRoot determinista + Transparency Log local con hash-chain (Fase J) — sin Merkle, sin firma real, sin contrato v1 nuevo | RESUELTO PARA BASELINE — alcance explícitamente acotado |
+| [ADR-058](ADR-058-semantic-cyber-graph.md) | Semantic Cyber Graph (Fase K) — `CyberSemanticEntity`/`SemanticRelation` deterministas, sin generación por LLM | RESUELTO PARA BASELINE |
+| [ADR-059](ADR-059-temporal-knowledge.md) | Temporal Knowledge (Fase K) — `query_at(T)`, `future_information_leakage=0` | RESUELTO PARA BASELINE |
+| [ADR-060](ADR-060-mission-context-and-blast-radius.md) | MissionContext + blast radius técnico/operacional/misión (Fase K) — UNKNOWN nunca es impacto cero | RESUELTO PARA BASELINE |
+| [ADR-061](ADR-061-semantic-conflict-and-authority-precedence.md) | SemanticConflict + Authority precedence (Fase K) — extiende `asset_reconciler`, nunca elige arbitrariamente | RESUELTO PARA BASELINE |
+| [ADR-062](ADR-062-safety-kernel-mission-context-integration.md) | Integración de MissionContext en Safety Kernel (Fase K) — mission_impact_bounded real, MissionContext nunca decide autorización | RESUELTO PARA BASELINE — alcance explícitamente acotado |
+| [ADR-063](ADR-063-mission-decision-evidence-integration.md) | Integración de evidencia de decisiones de misión con Fase J (Fase K) — reutiliza evidence_root/evidence_writer, sin mecanismo paralelo | RESUELTO PARA BASELINE |
 
 Plantilla para ADR nuevos: `../templates/adr/ADR-template.md`. Proponer uno nuevo vía el issue template `architecture-decision.yaml`.
