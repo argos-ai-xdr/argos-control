@@ -21,7 +21,7 @@ node_modules/
 .env
 .env.*
 *.local.yaml
-secrets/
+/secrets/
 
 # Generated evidence/reports (must live in Ceph RGW / OCI artifacts, not Git).
 # Anclado a la raíz (/evidence/): un patrón sin la barra inicial coincide
