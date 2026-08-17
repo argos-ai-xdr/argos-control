@@ -43,6 +43,21 @@ se convierte en el campo que aprueba `SAFE_TO_EVALUATE` por sí solo.
   (ese módulo simplemente no está cableado a `mission_context` todavía),
   documentado en `argos-core/README.md`, no confundir con "Mission
   Context no existe".
+* `SafetyEnvelope.mission_bounds` sigue siendo `null` cuando el
+  llamante no evaluó MissionContext — no cambia su significado, solo
+  deja de ser una constante incondicional.
+
+## Actualización K.1 (2026-08-17): cierra el hueco de `independent_verifier`
+
+El punto anterior queda resuelto: `SafetyEnvelope.mission_bounds` ahora
+sella `{mission_blast_radius, mission_context_hash}` cuando
+`SafetyCheckInput.mission_blast_radius` se evaluó (campo nuevo
+`mission_context_hash` añadido a `SafetyCheckInput`), y
+`independent_verifier.mission_constraints_respected` (ver actualización
+K.1 en ADR-055) ya re-verifica esa referencia en fresco. Ninguna
+autoridad cambia: `mission_bounds` sigue siendo un hecho sellado, nunca
+una decisión — `independent_verifier` no recalcula `MissionContext`,
+solo confirma que la referencia sellada sigue siendo válida.
 
 ## Impacto sobre AC01-AC14
 
@@ -53,4 +68,5 @@ No aplica directamente — endurece la capa de aseguramiento previa a
 
 `argos-core/services/safety_kernel/{__init__.py,README.md}`,
 `argos-core/tests/unit/test_safety_kernel.py`,
-`argos-core/tests/integration/test_semantic_mission_vertical_slice.py`.
+`argos-core/tests/integration/{test_semantic_mission_vertical_slice.py,test_k1_mission_verifier_vertical_slice.py}`,
+`adr/ADR-055-independent-verifier.md` (actualización K.1).

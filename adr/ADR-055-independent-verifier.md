@@ -67,9 +67,27 @@ exactamente ese pendiente.
 No aplica — capa de aseguramiento adicional antes de `PolicyDecision`;
 ningún AC01-AC14 existente se relaja ni se sustituye.
 
+## Actualización K.1 (2026-08-17): `mission_constraints_respected` real
+
+El punto 2 de la Decisión queda parcialmente superado: tras ADR-060
+(MissionContext) y ADR-062 (integración con `safety_kernel`),
+`mission_constraints_respected` deja de ser una constante `None`.
+Re-verifica en fresco la referencia (`mission_context_hash`) y el
+`mission_blast_radius` que `safety_kernel` selló en `envelope[
+"mission_bounds"]`, sin recalcular `MissionContext` desde cero. `VERIFIED`
+es ahora alcanzable por un checkout real cuando se confirman todos los
+hechos frescos, incluidos los de misión — probado en
+`tests/integration/test_k1_mission_verifier_vertical_slice.py`. El resto
+de la Decisión (9 comprobaciones, `ZERO EXECUTE`, sin contrato v1 nuevo)
+no cambia. No se crea un ADR nuevo para esto: es la misma decisión
+arquitectónica (Independent Verification Barrier), solo con uno de sus
+insumos ya real en vez de estructuralmente ausente.
+
 ## Fuentes
 
 `argos-core/services/independent_verifier/__init__.py`,
 `argos-core/services/independent_verifier/README.md`,
 `architecture/v0.6.25-gap-matrix.md` §24,
-`adr/ADR-054-safety-kernel-and-safety-envelope-v1.md`.
+`adr/ADR-054-safety-kernel-and-safety-envelope-v1.md`,
+`adr/ADR-060-mission-context-and-blast-radius.md`,
+`adr/ADR-062-safety-kernel-mission-context-integration.md`.
