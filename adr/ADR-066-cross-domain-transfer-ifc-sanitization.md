@@ -56,3 +56,8 @@ No aplica.
 
 `argos-core/services/federation/{ifc,sanitizer,cross_domain_transfer}.py`,
 `argos-core/tests/unit/{test_federation_ifc,test_federation_sanitizer,test_cross_domain_transfer}.py`.
+
+## Actualización (Reconciliación A→L, 2026-08-17)
+
+`ARG-029` (epic E9) creado — alta retroactiva de trazabilidad, no
+trabajo pendiente. Ver `architecture/implementation-readiness.md` §4.1.

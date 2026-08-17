@@ -255,7 +255,7 @@ capabilities:
     capability: "SecurityDomain v1 + aislamiento tenant/dominio deny-by-default"
     phase: L
     adr_refs: [ADR-064]
-    arg_refs: []
+    arg_refs: [ARG-029]
     repositories: [argos-core]
     implementation_paths: [argos-core/services/federation/security_domain.py]
     test_paths: [argos-core/tests/unit/test_security_domain.py]
@@ -266,13 +266,13 @@ capabilities:
     current_state: IMPLEMENTED_LOCALLY_AND_TESTED
     residual_gap: "Ninguno de diseño."
     owner: aie-engineer
-    next_action: "Ninguna. UNMAPPED_IMPLEMENTATION (ver §8 del informe)."
+    next_action: "Ninguna — mapeado a ARG-029 (epic E9) tras la reconciliación A→L."
 
   - capability_id: CAP-L-02
     capability: "FederatedArtifact v1 + FederationDecision (evaluación de confianza local, sin promediar)"
     phase: L
     adr_refs: [ADR-065]
-    arg_refs: []
+    arg_refs: [ARG-029]
     repositories: [argos-core]
     implementation_paths: [argos-core/services/federation/federated_artifact.py, argos-core/services/federation/decision.py, argos-core/services/federation/ledger.py, argos-core/services/federation/revocation.py]
     test_paths: [argos-core/tests/unit/test_federated_artifact.py, argos-core/tests/unit/test_federation_decision.py, argos-core/tests/unit/test_federation_ledger_and_revocation.py]
@@ -283,13 +283,13 @@ capabilities:
     current_state: IMPLEMENTED_LOCALLY_AND_TESTED
     residual_gap: "ACCEPT != ACTIVE probado estructuralmente (is_active siempre False)."
     owner: aie-engineer
-    next_action: "Ninguna. UNMAPPED_IMPLEMENTATION."
+    next_action: "Ninguna — mapeado a ARG-029 (epic E9) tras la reconciliación A→L."
 
   - capability_id: CAP-L-03
     capability: "CrossDomainTransfer v1 + IFC + sanitización determinista"
     phase: L
     adr_refs: [ADR-066]
-    arg_refs: []
+    arg_refs: [ARG-029]
     repositories: [argos-core]
     implementation_paths: [argos-core/services/federation/cross_domain_transfer.py, argos-core/services/federation/ifc.py, argos-core/services/federation/sanitizer.py]
     test_paths: [argos-core/tests/unit/test_cross_domain_transfer.py, argos-core/tests/unit/test_federation_ifc.py, argos-core/tests/unit/test_federation_sanitizer.py]
@@ -300,13 +300,13 @@ capabilities:
     current_state: IMPLEMENTED_LOCALLY_AND_TESTED
     residual_gap: "Downgrade de clasificación siempre exige REQUIRE_APPROVAL explícita, nunca automático."
     owner: aie-engineer
-    next_action: "Ninguna. UNMAPPED_IMPLEMENTATION."
+    next_action: "Ninguna — mapeado a ARG-029 (epic E9) tras la reconciliación A→L."
 
   - capability_id: CAP-L-04
     capability: "Transporte de prueba TEST_LOCAL + integración de evidencia de Federation con Fase J"
     phase: L
     adr_refs: [ADR-067]
-    arg_refs: []
+    arg_refs: [ARG-029]
     repositories: [argos-core]
     implementation_paths: [argos-core/services/federation/transport.py, argos-core/services/federation/evidence.py]
     test_paths: [argos-core/tests/unit/test_federation_transport.py, argos-core/tests/integration/test_federation_evidence_integration.py]
@@ -323,7 +323,7 @@ capabilities:
     capability: "Rebanadas verticales Federation (normal + seguridad) y suite adversarial (18 casos)"
     phase: L
     adr_refs: [ADR-064, ADR-065, ADR-066, ADR-067]
-    arg_refs: []
+    arg_refs: [ARG-029]
     repositories: [argos-core]
     implementation_paths: [argos-core/services/federation]
     test_paths: [argos-core/tests/integration/test_federation_vertical_slice.py, argos-core/tests/integration/test_federation_safety_vertical_slice.py, argos-core/tests/adversarial/test_federation_adversarial.py]
@@ -338,12 +338,18 @@ capabilities:
 
 unmapped_implementation_summary:
   description: >
-    ADR-053 en adelante (Fases G[parcial]/H/I/J/K/K.1/L) no tienen
-    story ARG-001..028 asociada — confirmado por inspección de la
-    sección "Historia relacionada" de cada ADR. ADR-052 es el último con
-    mapeo ARG directo (ARG-002/003). Esto NO es exclusivo de Federation:
-    es el patrón de TODO el tramo post-ADR-051 del roadmap A->L, adoptado
-    deliberadamente fuera del backlog original (ver ADR-051, Consecuencia).
-  adr_range: "ADR-053..067 (15 ADR)"
-  classification: UNMAPPED_IMPLEMENTATION_CANDIDATE
-  resolution: "Ver architecture/implementation-readiness.md §8 — decisión pendiente de aprobación del usuario, no resuelta automáticamente aquí."
+    ADR-053 a ADR-063 (Fases G[parcial]/H/I/J/K/K.1) siguen sin story
+    ARG-001..028 asociada — confirmado por inspección de la sección
+    "Historia relacionada" de cada ADR. ADR-052 es el último con mapeo
+    ARG directo previo (ARG-002/003). ADR-064..067 (Fase L, Federation)
+    SE RESOLVIÓ: el usuario aprobó la opción C (§8) y ARG-029 se creó en
+    project/backlog/backlog.yaml (epic E9) el 2026-08-17, retroactivo,
+    sin implicar trabajo pendiente. El resto del tramo (ADR-053..063)
+    permanece bajo la opción B (cross-cutting sin ARG nueva, ratificada
+    en ADR-051) — el usuario la consideró "válida como explicación
+    histórica" pero "no suficiente como modelo de planificación futuro";
+    no se resolvió más allá de eso en esta ronda.
+  adr_range_resolved: "ADR-064..067 (Fase L) -> ARG-029"
+  adr_range_still_unmapped: "ADR-053..063 (Fases G/H/I/J/K/K.1), bajo opción B"
+  classification: PARTIALLY_RESOLVED
+  resolution: "Federation (ADR-064..067) mapeado a ARG-029. El resto permanece cross-cutting sin ARG (opción B) hasta que el usuario decida repetir el ejercicio para ADR-053..063."

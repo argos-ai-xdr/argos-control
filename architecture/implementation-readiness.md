@@ -187,24 +187,32 @@ Evaluación de las tres opciones:
   backlog/capacidad para planificación (story points, sprint,
   dependencias) — algo que ADR-051 deliberadamente no intentó sustituir.
 
-**Propuesta de `ARG-029` (NO creada — solo reportada, a la espera de
-aprobación explícita)**:
+**`ARG-029` — APROBADA Y CREADA (2026-08-17)**, tras decisión explícita
+del usuario sobre esta reconciliación:
 
-| Campo | Valor propuesto |
+| Campo | Valor |
 | --- | --- |
-| ID recomendado | `ARG-029` |
-| Título | "Federation Core / Cross-Domain Core / Federation Policy Engine (Fase L)" |
+| ID | `ARG-029` |
+| Epic | `E9` — Aseguramiento (nuevo, `project/backlog/backlog.yaml`) |
+| Título | "Sovereign Federation & Cross-Domain Core" |
 | Alcance | `SecurityDomain`, `FederatedArtifact`, `FederationDecision`, `CrossDomainTransfer`, IFC, sanitización determinista, anti-replay/revocación — tal como está implementado en `argos-core/services/federation` |
 | Fase | L |
 | Prioridad | P1 (no bloquea ningún AC01-14 ni gate G0-G7 existente) |
-| Dependencias | ARG-011..014 (grafo RBAC/red, reutilizado no duplicado), Fase K (semantic_conflict, reutilizado) |
-| Paths implementados | `argos-core/services/federation/*` (§4, `CAP-L-01..05`) |
-| Evidencia existente | 69 tests (`CAP-L-01..05`, `traceability/implementation-readiness.yaml`), `ADR-064..067` |
-| Justificación retroactiva | Documentar trabajo ya construido y probado, no planificar trabajo futuro — mismo criterio que `ARG-027`/`ARG-028` cuando se escribieron sobre capacidad ya existente |
+| sp | 13 |
+| Dependencias | Ninguna (sin bloqueo técnico real de otro ARG — `argos-core` no importa `argos-cyber-tools`; el prerrequisito real, `semantic_conflict` de Fase K, tampoco tiene ARG propia) |
+| Estado | `IMPLEMENTED_LOCALLY_AND_TESTED` (declarado en el propio backlog, no "planeado") |
+| No implica | `REAL_MULTI_SITE_FEDERATION`/`REAL_TRANSPORT`/`EXTERNAL_TRUST_ESTABLISHMENT`/`REAL_CROSS_DOMAIN_GATEWAY` (todos `BLOCKED_EXTERNAL`) |
+| Motivo de alta | Regularización de trazabilidad y visibilidad de backlog/capacidad — no oculta ni resuelve `R0-01` (son hallazgos independientes) |
 
-Podría repetirse el mismo ejercicio para `ADR-053..063` (`ARG-030+`) si
-el usuario decide que B ya no es suficiente para todo el tramo, no solo
-para Federation. **No se crea ningún ARG en esta reconciliación.**
+`ADR-064..067` actualizados con una nota de "Actualización" apuntando a
+`ARG-029`. `traceability/implementation-readiness.yaml` actualizado:
+`CAP-L-01..05.arg_refs = [ARG-029]`.
+
+**`ADR-053..063` (Fases G[parcial]/H/I/J/K/K.1) permanecen sin ARG** —
+el usuario confirmó la opción B como "válida como explicación
+histórica" pero "no suficiente como modelo de planificación futuro" sin
+aprobar todavía repetir el ejercicio C para ese tramo. Queda como
+recomendación abierta, no resuelta en esta ronda.
 
 ---
 

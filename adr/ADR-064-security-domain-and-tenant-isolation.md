@@ -48,3 +48,12 @@ No aplica — capa de aislamiento nueva, ningún AC existente se relaja.
 `argos-core/services/federation/security_domain.py`,
 `argos-core/tests/unit/test_security_domain.py`,
 `argos-core/tests/adversarial/test_federation_adversarial.py`.
+
+## Actualización (Reconciliación A→L, 2026-08-17)
+
+`ARG-029` (Sovereign Federation & Cross-Domain Core, epic E9) se creó en
+`project/backlog/backlog.yaml` tras la reconciliación global A→L —
+alta retroactiva de trazabilidad de backlog para capacidad ya
+`IMPLEMENTED_LOCALLY_AND_TESTED`, no trabajo pendiente. No sustituye la
+decisión de este ADR ni implica `REAL_MULTI_SITE_FEDERATION`. Ver
+`architecture/implementation-readiness.md` §4.1.

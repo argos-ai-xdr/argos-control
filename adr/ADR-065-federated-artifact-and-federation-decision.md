@@ -61,3 +61,8 @@ No aplica.
 `argos-core/services/federation/{federated_artifact,ledger,revocation,decision}.py`,
 `argos-core/tests/unit/{test_federated_artifact,test_federation_ledger_and_revocation,test_federation_decision}.py`,
 `argos-core/tests/adversarial/test_federation_adversarial.py`.
+
+## Actualización (Reconciliación A→L, 2026-08-17)
+
+`ARG-029` (epic E9) creado — alta retroactiva de trazabilidad, no
+trabajo pendiente. Ver `architecture/implementation-readiness.md` §4.1.

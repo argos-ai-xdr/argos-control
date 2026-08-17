@@ -16,12 +16,13 @@ epics:
   E6: {name: Respuesta, objective: "LangGraph, OPA, Shuffle, HITL y rollback", result: "Una contención reversible aprobada y verificada"}
   E7: {name: Operación, objective: "SmartOps, evidence store y SOC handover", result: "Experiencia del analista y paquete auditable"}
   E8: {name: Integración, objective: "Resiliencia, hardening, aceptación y demo", result: "ARGOS-CYB-01 completo y release candidate"}
+  E9: {name: Aseguramiento, objective: "Roadmap A→L (ADR-051 en adelante) — Safety Kernel, Evidence/Trust, Semantic/Mission, Federation", result: "Trazabilidad de backlog formal para capacidad ya construida y probada, adoptada fuera del backlog original por ADR-051"}
 
 totals:
-  candidate_sp: 211
+  candidate_sp: 224
   p0_sp: 180
-  p1_sp: 31
-  note: "P1 no entra en el compromiso inicial; regla de pull para P1 en governance/gates/gates.md"
+  p1_sp: 44
+  note: "P1 no entra en el compromiso inicial; regla de pull para P1 en governance/gates/gates.md. ARG-029 (E9) es trazabilidad retroactiva de capacidad ya IMPLEMENTED_LOCALLY_AND_TESTED (Fase L), no trabajo pendiente — ver architecture/implementation-readiness.md §4.1."
 
 items:
   - {id: ARG-001, epic: E1, sprint: S1, priority: P0, sp: 5,  story: "Crear repos, owners, branches, templates ADR y release manifest", dependencies: [], repo: argos-control}
@@ -56,3 +57,4 @@ items:
   # documento maestro vigente.
   - {id: ARG-027, epic: E8, sprint: S8, priority: P0, sp: 8,  story: "Acceptance runner AC01-AC14, ARR/G7 y validación inmutable de la release candidate", dependencies: [ARG-024, ARG-025, ARG-026], repo: argos-validation}
   - {id: ARG-028, epic: E8, sprint: S8, priority: P0, sp: 8,  story: "Ensayo final, demo, as-built, runbooks y handover", dependencies: [ARG-027], repo: multi}
+  - {id: ARG-029, epic: E9, sprint: "post-S8 (Fase L)", priority: P1, sp: 13, story: "Sovereign Federation & Cross-Domain Core — SecurityDomain/FederatedArtifact/FederationDecision/CrossDomainTransfer/IFC ya IMPLEMENTED_LOCALLY_AND_TESTED (ADR-064..067); alta retroactiva de trazabilidad de backlog, no trabajo pendiente. No implica REAL_MULTI_SITE_FEDERATION/REAL_TRANSPORT/EXTERNAL_TRUST/REAL_CROSS_DOMAIN_GATEWAY (BLOCKED_EXTERNAL)", dependencies: [], repo: argos-core}
