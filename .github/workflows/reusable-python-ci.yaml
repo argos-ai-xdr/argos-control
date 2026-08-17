@@ -18,6 +18,21 @@ on:
           contra ese repositorio hermano (p. ej. argos-validation, argos-core).
         type: string
         default: ""
+    secrets:
+      CONTRACTS_CHECKOUT_TOKEN:
+        description: >-
+          PAT con acceso de lectura a argos-ai-xdr/argos-contracts-scenarios.
+          Requerido cuando contracts-ref != "" porque el GITHUB_TOKEN por
+          defecto solo tiene acceso al repo donde corre el workflow, no a
+          repos hermanos privados. El caller debe pasar
+          `secrets: inherit` (u override explícito de este secreto de org).
+          Nombre en MAYÚSCULAS_CON_GUION_BAJO a propósito: los secretos reales
+          de GitHub no admiten guiones ("-") en el nombre — un parámetro de
+          workflow_call sí los admite, pero entonces `secrets: inherit` nunca
+          podría emparejarlo con ningún secreto real (encontrado al intentar
+          crear el secreto en la UI: "Secret names can only contain
+          alphanumeric characters or underscores").
+        required: false
 
 jobs:
   lint-and-test:
@@ -35,6 +50,7 @@ jobs:
           repository: argos-ai-xdr/argos-contracts-scenarios
           ref: ${{ inputs.contracts-ref }}
           path: _contracts-scenarios
+          token: ${{ secrets.CONTRACTS_CHECKOUT_TOKEN }}
 
       - uses: actions/setup-python@v5
         with:
