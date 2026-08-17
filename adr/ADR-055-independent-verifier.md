@@ -1,9 +1,9 @@
-# ADR-021: Independent Verification Barrier (Fase H)
+# ADR-055: Independent Verification Barrier (Fase H)
 
 * **Estado**: RESUELTO PARA BASELINE — alcance explícitamente acotado (ver Consecuencia)
 * **Fecha**: 2026-08-17
-* **Decisores**: Platform/SRE, Arquitectura (mismo criterio de ADR-017/ADR-020: construir solo lo real y verificable)
-* **Historia relacionada**: continuación directa de ADR-020; identificado como el siguiente incremento real de Fase H en `architecture/v0.6.25-gap-matrix.md` §24
+* **Decisores**: Platform/SRE, Arquitectura (mismo criterio de ADR-051/ADR-054: construir solo lo real y verificable)
+* **Historia relacionada**: continuación directa de ADR-054; identificado como el siguiente incremento real de Fase H en `architecture/v0.6.25-gap-matrix.md` §24
 
 ## Contexto
 
@@ -14,7 +14,7 @@ measurable`, `rollback executable`, `blast radius bounded`, `mission
 constraints respected`. Estados `VERIFIED / INCONCLUSIVE / REJECTED`,
 con la regla explícita **"INCONCLUSIVE / REJECTED → ZERO EXECUTE"**.
 
-ADR-020 ya construyó `safety_kernel`, que produce el `SafetyEnvelope`
+ADR-054 ya construyó `safety_kernel`, que produce el `SafetyEnvelope`
 pero deja explícitamente pendiente su verificación independiente
 ("cablear OPA directamente a un SafetyEnvelope sin verificación
 independiente invertiría el orden del flujo"). Esta ADR resuelve
@@ -34,7 +34,7 @@ exactamente ese pendiente.
    los 3 checks estructuralmente `None` de `safety_kernel` — Mission
    Context no existe. Consecuencia: **`VERIFIED` no es alcanzable por
    ningún checkout real de hoy**, exactamente el mismo patrón que
-   `SAFE_TO_EVALUATE` en ADR-020. `decide_state()` se prueba de forma
+   `SAFE_TO_EVALUATE` en ADR-054. `decide_state()` se prueba de forma
    aislada para demostrar que la lógica sí lo alcanza cuando
    corresponda.
 3. `INCONCLUSIVE` y `REJECTED` convergen en el mismo efecto práctico
@@ -60,7 +60,7 @@ exactamente ese pendiente.
 * Security Digital Twin (§25 del gap matrix) sigue sin existir — esta
   ADR no lo construye ni lo simula.
 * No se crea ARG-029+: es la extensión directa de la capacidad ya
-  identificada en ADR-020 dentro del roadmap adoptado en ADR-017.
+  identificada en ADR-054 dentro del roadmap adoptado en ADR-051.
 
 ## Impacto sobre AC01-AC14
 
@@ -72,4 +72,4 @@ ningún AC01-AC14 existente se relaja ni se sustituye.
 `argos-core/services/independent_verifier/__init__.py`,
 `argos-core/services/independent_verifier/README.md`,
 `architecture/v0.6.25-gap-matrix.md` §24,
-`adr/ADR-020-safety-kernel-and-safety-envelope-v1.md`.
+`adr/ADR-054-safety-kernel-and-safety-envelope-v1.md`.

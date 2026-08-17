@@ -1,5 +1,5 @@
 # Deep Assurance (prompt maestro de arquitectura objetivo, §22 y anexo
-# "Deep Assurance"; ADR-017; argos-control/architecture/v0.6.25-gap-matrix.md).
+# "Deep Assurance"; ADR-051; argos-control/architecture/v0.6.25-gap-matrix.md).
 #
 # NO existe todavía un "Deep Assurance Architecture" como subsistema de
 # software (motor que genere/valide esta cadena automáticamente — eso es
@@ -219,7 +219,7 @@ claims:
       Independent Verifier/RuntimeTrustContext en ningún repo
       (verificado: cero resultados para esos términos fuera de
       documentos de gap-analysis). Es la brecha de mayor prioridad según
-      ADR-017 — Fase H.
+      ADR-051 — Fase H.
     state: NOT_SUPPORTED
     gate: null
 
@@ -229,7 +229,7 @@ claims:
       Toda promoción, revocación o aprobación crítica queda en un log
       append-only con TransparencyReceipt verificable.
     argument: >
-      ADR-023 (Fase J): TransparencyLog encadena entry_hash/
+      ADR-057 (Fase J): TransparencyLog encadena entry_hash/
       previous_entry_hash real (sha256), detecta mutación histórica y
       huecos de secuencia recomputando desde cero, nunca confiando en el
       campo ya escrito. EvidenceRoot agrega EvidenceManifest reales de

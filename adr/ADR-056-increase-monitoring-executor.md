@@ -1,4 +1,4 @@
-# ADR-022: Executor real para increase_monitoring (Fase I)
+# ADR-056: Executor real para increase_monitoring (Fase I)
 
 * **Estado**: RESUELTO PARA BASELINE
 * **Fecha**: 2026-08-17
@@ -9,7 +9,7 @@
 
 `tool_catalog/definitions/increase_monitoring.yaml` declara la
 herramienta (`mode: [dry-run, execute]`, `approval_required: false`,
-`side_effect_class: REVERSIBLE_WRITE` desde ADR-019) y
+`side_effect_class: REVERSIBLE_WRITE` desde ADR-053) y
 `mcp_gateway.Gateway.authorize()` ya la autorizaría hoy — pero no existía
 ningún código en `argos-cyber-tools` que la ejecutara de verdad. El
 propio README del módulo señalaba el bloqueo explícito: "falta decidir

@@ -1,4 +1,4 @@
-# ADR-017: Adopción incremental de la hoja de ruta v0.6.25.x (Fases A→L)
+# ADR-051: Adopción incremental de la hoja de ruta v0.6.25.x (Fases A→L)
 
 * **Estado**: RESUELTO PARA BASELINE — alcance de fases confirmado; alcance de contratos explícitamente diferido (ver Consecuencia)
 * **Fecha**: 2026-08-17

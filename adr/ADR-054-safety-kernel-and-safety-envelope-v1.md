@@ -1,8 +1,8 @@
-# ADR-020: Deterministic Safety Kernel y SafetyEnvelope v1 (Fase H)
+# ADR-054: Deterministic Safety Kernel y SafetyEnvelope v1 (Fase H)
 
 * **Estado**: RESUELTO PARA BASELINE — alcance explícitamente acotado (ver Consecuencia)
 * **Fecha**: 2026-08-17
-* **Decisores**: Platform/SRE, Arquitectura (siguiendo el criterio de ADR-017: construir solo lo real y verificable; SafetyEnvelope v1 es el ejemplo que ADR-017 cita explícitamente para una futura excepción contrato-por-contrato)
+* **Decisores**: Platform/SRE, Arquitectura (siguiendo el criterio de ADR-051: construir solo lo real y verificable; SafetyEnvelope v1 es el ejemplo que ADR-051 cita explícitamente para una futura excepción contrato-por-contrato)
 * **Historia relacionada**: identificado en `architecture/v0.6.25-gap-matrix.md` §1 y §21-25 como la pieza de mayor valor de seguridad por esfuerzo del roadmap A→L, y confirmado como tal por el usuario tras completar las Fases A-G
 
 ## Contexto
@@ -52,7 +52,7 @@ Context, RuntimeTrustContext).
    `argos-contracts-scenarios/schemas/safety-envelope/`, con fixture
    smoke real generada invocando el código real (no escrita a mano).
    Esto es una excepción explícita al conjunto cerrado de 10
-   (documento maestro §6.5) — pre-autorizada por ADR-017, que cita
+   (documento maestro §6.5) — pre-autorizada por ADR-051, que cita
    textualmente "SafetyEnvelope v1 para Fase H" como el ejemplo de
    cuándo un contrato nuevo se evalúa y ratifica de forma individual, no
    como parte de los ~32 contratos nuevos del prompt en bloque.
@@ -75,7 +75,7 @@ Context, RuntimeTrustContext).
   siguen sin existir — esta ADR no los construye ni los simula.
 * No se crea ningún ARG-029+ para este trabajo: es la extensión de una
   capacidad ya identificada (Safety Kernel) dentro del roadmap ya
-  adoptado (ADR-017), no una historia nueva independiente.
+  adoptado (ADR-051), no una historia nueva independiente.
 * El conjunto de 10 contratos cerrados no cambia de estado — sigue
   siendo cerrado; SafetyEnvelope es la ÚNICA excepción y quedó
   documentada como tal en tres lugares (`compatibility/contracts.yaml`,
@@ -95,7 +95,7 @@ existente; es una capa de aseguramiento adicional antes de
 `argos-core/services/safety_kernel/README.md`,
 `argos-contracts-scenarios/schemas/safety-envelope/v1.schema.json`,
 `architecture/v0.6.25-gap-matrix.md` §1, §21-25,
-`adr/ADR-017-incremental-v0625-roadmap-adoption.md`,
-`adr/ADR-019-tool-manifest-v1-secure-lifecycle.md` (mismo criterio de
+`adr/ADR-051-incremental-v0625-roadmap-adoption.md`,
+`adr/ADR-053-tool-manifest-v1-secure-lifecycle.md` (mismo criterio de
 excepción contrato-por-contrato, aplicado ahí a un schema interno en
 vez de a un contrato cross-repo).

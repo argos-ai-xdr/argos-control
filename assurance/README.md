@@ -1,6 +1,6 @@
 # assurance/
 
-Ledger de Deep Assurance (ADR-017, Fase A del prompt maestro de
+Ledger de Deep Assurance (ADR-051, Fase A del prompt maestro de
 arquitectura objetivo): cadena Requirement→Claim→Argument→Control→Test→
 Metric→Run→Evidence→Residual Risk→Gate sobre el MVP real.
 

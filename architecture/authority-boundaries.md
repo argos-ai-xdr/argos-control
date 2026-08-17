@@ -1,6 +1,6 @@
 # Authority boundaries
 
-ADR-017, Fase A. Consolida quién/qué tiene autoridad real para decidir o
+ADR-051, Fase A. Consolida quién/qué tiene autoridad real para decidir o
 actuar en el sistema — no describe un subsistema nuevo, solo reúne en un
 solo lugar hechos ya verdaderos y dispersos entre código, ADR y tests.
 Cada afirmación cita el punto exacto de aplicación real; ninguna es

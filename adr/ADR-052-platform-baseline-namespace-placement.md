@@ -1,8 +1,8 @@
-# ADR-018: Ubicación de namespace para SPIRE y OpenBao (Fase B, ADR-017)
+# ADR-052: Ubicación de namespace para SPIRE y OpenBao (Fase B, ADR-051)
 
 * **Estado**: RESUELTO PARA BASELINE
 * **Fecha**: 2026-08-17
-* **Decisores**: Platform/SRE (siguiendo el criterio ya fijado por ADR-017: resolver solo lo que sea real y verificable, sin ampliar el modelo ratificado si no hace falta)
+* **Decisores**: Platform/SRE (siguiendo el criterio ya fijado por ADR-051: resolver solo lo que sea real y verificable, sin ampliar el modelo ratificado si no hace falta)
 * **Historia relacionada**: ARG-002, ARG-003
 
 ## Contexto
@@ -24,7 +24,7 @@ es una decisión ya ratificada, con validador real en
 `argos-platform/scripts/test.sh` (`expected_namespaces`, 10 entradas
 fijas). Crear `spire-system` o `argos-secrets` como namespaces nuevos
 ampliaría ese conjunto cerrado — el mismo tipo de tensión, a menor
-escala, que la pregunta de los 32 contratos nuevos resuelta en ADR-017.
+escala, que la pregunta de los 32 contratos nuevos resuelta en ADR-051.
 
 ## Decisión
 

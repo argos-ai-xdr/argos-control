@@ -1,6 +1,6 @@
 # ai-governance/
 
-Gobierno de componentes de IA (ADR-017, Fase A del prompt maestro de
+Gobierno de componentes de IA (ADR-051, Fase A del prompt maestro de
 arquitectura objetivo, §35).
 
 Ver [`ai-component-registry.yaml`](ai-component-registry.yaml): 2

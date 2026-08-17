@@ -1,8 +1,8 @@
-# ADR-023: EvidenceRoot determinista + Transparency Log local (Fase J)
+# ADR-057: EvidenceRoot determinista + Transparency Log local (Fase J)
 
 * **Estado**: RESUELTO PARA BASELINE — alcance explícitamente acotado (ver Consecuencia)
 * **Fecha**: 2026-08-17
-* **Decisores**: Platform/SRE, QA/Security Observer (mismo criterio de ADR-017/ADR-020/ADR-021/ADR-022: construir solo lo real y verificable, documentar honestamente lo bloqueado)
+* **Decisores**: Platform/SRE, QA/Security Observer (mismo criterio de ADR-051/ADR-054/ADR-055/ADR-056: construir solo lo real y verificable, documentar honestamente lo bloqueado)
 * **Historia relacionada**: cierra `CLAIM-010` de `assurance/argos-assurance.yaml` en su ámbito local; continúa el roadmap A→L (Fase J: Evidence/Trust)
 
 ## Contexto
@@ -55,7 +55,7 @@ operador, no promoción/revocación de componentes).
 5. **Sin contrato v1 nuevo.** `EvidenceRoot`/`TransparencyReceipt` no se
    formalizan como contrato cross-repo — nada fuera de `argos-core` los
    consume todavía (mismo criterio ya aplicado a `ReplayCapsule` en
-   ADR-021). Si una fase futura necesita consumirlos desde otro
+   ADR-055). Si una fase futura necesita consumirlos desde otro
    repositorio, se evalúa entonces, contrato por contrato.
 6. **Vertical slice real, no simulado.** El ciclo completo
    (`request → execute → verify → rollback → EvidenceManifest →
@@ -77,7 +77,7 @@ operador, no promoción/revocación de componentes).
   producción, post-quantum, object-lock real.
 * No se crea ARG-029+: es la extensión directa de la capacidad ya
   identificada (`EvidenceManifest`) dentro del roadmap adoptado en
-  ADR-017.
+  ADR-051.
 * Estado final de la fase: **`PHASE_J_IMPLEMENTED_LOCALLY_AND_TESTED`**
   — explícitamente NO `VALIDATED_IN_TARGET` ni `PRODUCTION_READY` (sin
   infraestructura objetivo desplegada).

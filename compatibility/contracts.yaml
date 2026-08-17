@@ -1,7 +1,7 @@
 # Matriz de compatibilidad de contratos v1
 # Fuente: documento maestro v0.5, sección 6.5. Definidos formalmente en argos-contracts-scenarios/schemas/.
-# Conjunto cerrado de 10 + 1 excepción explícita (SafetyEnvelope, ADR-020),
-# autorizada contrato-por-contrato por ADR-017 -- no reabre la decisión de
+# Conjunto cerrado de 10 + 1 excepción explícita (SafetyEnvelope, ADR-054),
+# autorizada contrato-por-contrato por ADR-051 -- no reabre la decisión de
 # los ~32 contratos nuevos del prompt maestro de arquitectura objetivo.
 # Reglas de evolución: PATCH = corrige documentación/restricciones sin cambiar payload;
 # MINOR = añade campos opcionales; MAJOR = rompe compatibilidad y exige migrador + fixtures duales.
@@ -117,5 +117,5 @@ contracts:
     ac: []
     owned_by: argos-contracts-scenarios
     consumers: []
-    adr: ADR-020
-    note: "Excepción explícita al conjunto cerrado de 10 (documento maestro §6.5), autorizada contrato-por-contrato por ADR-017."
+    adr: ADR-054
+    note: "Excepción explícita al conjunto cerrado de 10 (documento maestro §6.5), autorizada contrato-por-contrato por ADR-051."

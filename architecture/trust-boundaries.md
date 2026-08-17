@@ -1,6 +1,6 @@
 # Trust boundaries (datos y decisión)
 
-ADR-017, Fase A. Complementa a [`trust-zones/trust-zones.md`](trust-zones/trust-zones.md),
+ADR-051, Fase A. Complementa a [`trust-zones/trust-zones.md`](trust-zones/trust-zones.md),
 que cubre CONECTIVIDAD DE RED (qué origen puede hablar con qué destino,
 por qué protocolo). Este documento cubre otra dimensión: qué pasa con
 un DATO o una DECISIÓN al cruzar cada frontera de servicio — validación,

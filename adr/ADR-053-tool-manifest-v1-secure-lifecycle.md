@@ -1,8 +1,8 @@
-# ADR-019: ToolManifest v1 — side_effect_class, rate_limit y Version Downgrade (Fase G, SECURE TOOL LIFECYCLE)
+# ADR-053: ToolManifest v1 — side_effect_class, rate_limit y Version Downgrade (Fase G, SECURE TOOL LIFECYCLE)
 
 * **Estado**: RESUELTO PARA BASELINE
 * **Fecha**: 2026-08-17
-* **Decisores**: Platform/SRE, Cyber-Range (siguiendo el criterio de ADR-017: construir solo lo real y verificable, contrato por contrato cuando una fase lo necesite de verdad)
+* **Decisores**: Platform/SRE, Cyber-Range (siguiendo el criterio de ADR-051: construir solo lo real y verificable, contrato por contrato cuando una fase lo necesite de verdad)
 * **Historia relacionada**: identificado en `architecture/v0.6.25-gap-matrix.md` §15-16
 
 ## Contexto
@@ -23,12 +23,12 @@ de `tool_catalog/signatures/`) pero le faltaban explícitamente
 Downgrade tenían ningún mecanismo de detección.
 
 **A diferencia de los ~32 contratos v1 nuevos de la sección 5 del
-prompt** (diferidos en ADR-017, conjunto cerrado de 10 contratos
+prompt** (diferidos en ADR-051, conjunto cerrado de 10 contratos
 cross-repo en `argos-contracts-scenarios`), `tool-definition.schema.json`
 es un schema interno de `argos-cyber-tools` — nunca cruza como mensaje
 entre repos, no toca el conjunto cerrado. Extenderlo no reabre esa
 tensión y no requiere el proceso de evaluación contrato-por-contrato que
-ADR-017 reserva para los 10 contratos cerrados.
+ADR-051 reserva para los 10 contratos cerrados.
 
 ## Decisión
 
@@ -86,4 +86,4 @@ introducir un AC nuevo.
 `argos-cyber-tools/mcp_gateway/__init__.py`,
 `argos-cyber-tools/tool_catalog/version_ledger.py`,
 `architecture/v0.6.25-gap-matrix.md` §15-16, `adr/ADR-003-mcp-security.md`,
-`adr/ADR-017-incremental-v0625-roadmap-adoption.md`.
+`adr/ADR-051-incremental-v0625-roadmap-adoption.md`.
