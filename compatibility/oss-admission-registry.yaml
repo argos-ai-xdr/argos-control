@@ -1,0 +1,462 @@
+# OSS-QUAL-01 (propuesta v0.6.25.4, §2.3.1): registro de admisión y
+# obligaciones OSS. La condición open source NO elimina obligaciones de
+# licencia, procedencia, vulnerabilidades ni soporte — cada fila se congela
+# contra la versión y el artefacto REALMENTE promovidos, no contra "la
+# última release de GitHub". Complementa (no sustituye) compatibility/
+# components.yaml: ese archivo fija el baseline P0 por capability; este
+# registra la decisión de admisión OSS con los 6 campos que exige
+# OSS-QUAL-01 para cada componente que aparece ahí con licencia copyleft o
+# AGPL, donde la obligación de licencia es lo que de verdad hay que
+# vigilar.
+#
+# gate=UNKNOWN no es un valor válido para ninguna fila que entre en la
+# release candidate (regla dura del documento). Donde un sub-campo depende
+# de un release real desplegado (imagen+digest fijados, SBOM, CVEs
+# escaneados) y ese release no existe todavía porque ENV-QUAL-01 (cualificar
+# contra un cluster OSC/Gardener real) sigue BLOCKED, el sub-campo se marca
+# explícitamente "PENDIENTE (ENV-QUAL-01)" — nunca se rellena con un
+# digest/hash inventado. Esto es distinto de gate=UNKNOWN: la decisión de
+# ADMITIR el proyecto (licencia, sostenibilidad, alternativa) SÍ es
+# evaluable hoy con información pública verificable, aunque el pin de
+# versión exacto todavía no lo sea.
+#
+# Legal/OSS Officer debe validar el texto y las obligaciones REALES del
+# release fijado antes de distribuir nada — las licencias de abajo son
+# "candidatas de planificación" (columna del documento maestro), no una
+# opinión legal vinculante.
+
+schema_version: 1
+
+components:
+  - componente: Wazuh
+    capability_ref: SIEM/XDR  # compatibility/components.yaml
+    identidad:
+      proyecto: "wazuh/wazuh"
+      version_tag: "PENDIENTE (ENV-QUAL-01) — fijar contra el release real"
+      source_commit: "PENDIENTE (ENV-QUAL-01)"
+      imagen_oficial: "PENDIENTE (ENV-QUAL-01)"
+      digest: "PENDIENTE (ENV-QUAL-01)"
+      repositorio_interno: "PENDIENTE — mirror/registry interno aún no aprovisionado"
+    licencia:
+      spdx_id: GPL-2.0-only
+      texto_y_notices: "Verificar NOTICE/LICENSE del tag exacto fijado, no del HEAD"
+      dependencias_modificadas: "Ninguna modificación local prevista: uso self-hosted sin fork"
+      obligaciones_distribucion_red: "GPL-2.0: sin obligación de red (no es AGPL); obligación de código fuente solo si se REDISTRIBUYE el binario modificado — no aplica a uso interno self-hosted"
+    supply_chain:
+      sbom: "PENDIENTE (ENV-QUAL-01)"
+      provenance_attestation: "PENDIENTE (ENV-QUAL-01)"
+      firma: "PENDIENTE (ENV-QUAL-01)"
+      scanner: "Trivy (ya baseline en compatibility/components.yaml, capability Vulnerability)"
+      cves_conocidos: "PENDIENTE — requiere escanear la imagen digest-pinned real"
+      excepcion_con_caducidad: null
+    operacion_soberana:
+      instalacion_offline: "Soportada (agente/servidor/indexer/dashboard self-hosted, sin dependencia SaaS)"
+      egress: "Ninguno requerido para operación (feeds CTI van por MISP, no por Wazuh)"
+      almacenamiento: "OpenSearch (ya baseline, capability Evidence)"
+      backup_restore: "PENDIENTE — sin script real todavía (ver traceability.yaml, gate G6, ARG-025)"
+      upgrade_rollback: "PENDIENTE (ENV-QUAL-01)"
+    sostenibilidad:
+      cadencia: "Activo, releases regulares (proyecto establecido, no side-project)"
+      mantenedores: "Wazuh Inc. + comunidad, múltiples mantenedores activos"
+      bus_factor: "Bajo riesgo — empresa dedicada al proyecto"
+      owner_interno: "PENDIENTE — asignar en Scope Gate G0 (ADR-013)"
+      soporte: "Comunidad + soporte comercial opcional (no obligatorio, no se usa)"
+      alternativa_adapter: "Elastic Security / Suricata+ELK vía el mismo Normalizer (argos-core/services/normalizer ya abstrae por 'source')"
+    gate: ADMIT_WITH_OBLIGATIONS
+    gate_reason: >
+      Licencia GPL-2.0 sin obligación de red y sin modificación local
+      prevista: admisible. ADMIT_WITH_OBLIGATIONS (no ADMIT liso) porque el
+      pin de versión/digest/SBOM/CVE sigue pendiente de un release real —
+      la obligación es "no promover a producción sin completar esos campos
+      primero", no una duda sobre la licencia.
+
+  - componente: Falco
+    capability_ref: Runtime/network
+    identidad:
+      proyecto: "falcosecurity/falco"
+      version_tag: "PENDIENTE (ENV-QUAL-01)"
+      source_commit: "PENDIENTE (ENV-QUAL-01)"
+      imagen_oficial: "PENDIENTE (ENV-QUAL-01)"
+      digest: "PENDIENTE (ENV-QUAL-01)"
+      repositorio_interno: "PENDIENTE"
+    licencia:
+      spdx_id: Apache-2.0
+      texto_y_notices: "Verificar NOTICE del tag exacto fijado"
+      dependencias_modificadas: "Ninguna"
+      obligaciones_distribucion_red: "Permisiva, sin obligación de red ni de código fuente"
+    supply_chain:
+      sbom: "PENDIENTE (ENV-QUAL-01)"
+      provenance_attestation: "PENDIENTE (ENV-QUAL-01)"
+      firma: "PENDIENTE (ENV-QUAL-01)"
+      scanner: "Trivy"
+      cves_conocidos: "PENDIENTE"
+      excepcion_con_caducidad: null
+    operacion_soberana:
+      instalacion_offline: "Soportada (eBPF driver empaquetado, sin llamada externa)"
+      egress: "Ninguno requerido"
+      almacenamiento: "Eventos van a NATS JetStream (baseline, capability Bus)"
+      backup_restore: "No aplica (sin estado persistente propio)"
+      upgrade_rollback: "PENDIENTE (ENV-QUAL-01) — driver/mode deben fijarse contra el kernel OSC real"
+    sostenibilidad:
+      cadencia: "Proyecto CNCF graduado, releases regulares"
+      mantenedores: "Múltiples, gobernanza CNCF"
+      bus_factor: "Bajo riesgo — CNCF graduated project"
+      owner_interno: "PENDIENTE — asignar en Scope Gate G0"
+      soporte: "Comunidad; sin dependencia comercial"
+      alternativa_adapter: "Tetragon (misma vía de ingesta por 'source' en Normalizer)"
+    gate: ADMIT_WITH_OBLIGATIONS
+    gate_reason: >
+      Apache-2.0, CNCF graduated, sin obligación de red: admisible.
+      ADMIT_WITH_OBLIGATIONS por el mismo motivo que Wazuh — driver/kernel
+      compatibility y digest deben fijarse contra el cluster OSC real antes
+      de promover (ENV-QUAL-01 bloqueado, no un defecto de este registro).
+
+  - componente: Cilium/Hubble
+    capability_ref: Runtime/network
+    identidad:
+      proyecto: "cilium/cilium"
+      version_tag: "PENDIENTE (ENV-QUAL-01)"
+      source_commit: "PENDIENTE (ENV-QUAL-01)"
+      imagen_oficial: "PENDIENTE (ENV-QUAL-01)"
+      digest: "PENDIENTE (ENV-QUAL-01)"
+      repositorio_interno: "PENDIENTE"
+    licencia:
+      spdx_id: Apache-2.0
+      texto_y_notices: "Verificar NOTICE del tag exacto fijado"
+      dependencias_modificadas: "Ninguna"
+      obligaciones_distribucion_red: "Permisiva, sin obligación de red ni de código fuente"
+    supply_chain:
+      sbom: "PENDIENTE (ENV-QUAL-01)"
+      provenance_attestation: "PENDIENTE (ENV-QUAL-01)"
+      firma: "PENDIENTE (ENV-QUAL-01)"
+      scanner: "Trivy"
+      cves_conocidos: "PENDIENTE"
+      excepcion_con_caducidad: null
+    operacion_soberana:
+      instalacion_offline: "Soportada, pero modo full vs. chaining vs. fallback depende del CNI del cluster OSC real"
+      egress: "Ninguno requerido para operación base"
+      almacenamiento: "Flows consumidos por dmz_detector (argos-core), no persistidos por Cilium mismo"
+      backup_restore: "No aplica (config declarativa vía GitOps, ya baseline capability GitOps)"
+      upgrade_rollback: "PENDIENTE (ENV-QUAL-01) — modo full/chaining/fallback y límites de features sin fijar"
+    sostenibilidad:
+      cadencia: "Proyecto CNCF graduado, releases regulares"
+      mantenedores: "Isovalent + comunidad, múltiples mantenedores"
+      bus_factor: "Bajo riesgo — CNCF graduated project"
+      owner_interno: "PENDIENTE — asignar en Scope Gate G0"
+      soporte: "Comunidad + soporte comercial opcional (no obligatorio)"
+      alternativa_adapter: "Calico (mismo contrato FlowRecord en argos-core/services/dmz_detector)"
+    gate: ADMIT_WITH_OBLIGATIONS
+    gate_reason: >
+      Apache-2.0, CNCF graduated: admisible. ADMIT_WITH_OBLIGATIONS porque
+      el modo real (full/chaining/fallback) es una decisión de ENV-QUAL-01,
+      no de licencia — bloquear la release candidate en ese modo sin fijar
+      sería peor que dejarlo explícito aquí.
+
+  - componente: OPA
+    capability_ref: Policy
+    identidad:
+      proyecto: "open-policy-agent/opa"
+      version_tag: "PENDIENTE (ENV-QUAL-01)"
+      source_commit: "PENDIENTE (ENV-QUAL-01)"
+      imagen_oficial: "PENDIENTE (ENV-QUAL-01)"
+      digest: "PENDIENTE (ENV-QUAL-01)"
+      repositorio_interno: "PENDIENTE"
+    licencia:
+      spdx_id: Apache-2.0
+      texto_y_notices: "Verificar NOTICE del tag exacto fijado"
+      dependencias_modificadas: "Ninguna"
+      obligaciones_distribucion_red: "Permisiva, sin obligación de red ni de código fuente"
+    supply_chain:
+      sbom: "PENDIENTE (ENV-QUAL-01)"
+      provenance_attestation: "PENDIENTE (ENV-QUAL-01)"
+      firma: "PENDIENTE — bundles Rego deben firmarse (ADR-005), pin de imagen OPA en sí pendiente"
+      scanner: "Trivy"
+      cves_conocidos: "PENDIENTE"
+      excepcion_con_caducidad: null
+    operacion_soberana:
+      instalacion_offline: "Soportada, ya en uso real hoy: argos-cyber-tools/mcp_gateway.Gateway.authorize()"
+      egress: "Ninguno requerido"
+      almacenamiento: "Bundles Rego versionados en git (ADR-005)"
+      backup_restore: "No aplica (stateless; política reconstruible desde git)"
+      upgrade_rollback: "Bundle versionado + rollback vía git revert (ya construido, no pendiente)"
+    sostenibilidad:
+      cadencia: "Proyecto CNCF graduado, releases regulares"
+      mantenedores: "Múltiples, gobernanza CNCF"
+      bus_factor: "Bajo riesgo — CNCF graduated project"
+      owner_interno: "PENDIENTE — asignar en Scope Gate G0"
+      soporte: "Comunidad; sin dependencia comercial"
+      alternativa_adapter: "Kyverno ya cubre el subconjunto de admisión de imágenes (ver fila siguiente); OPA se mantiene para PolicyDecision/MCP/SOAR"
+    gate: ADMIT
+    gate_reason: >
+      Apache-2.0, CNCF graduated, y a diferencia de los anteriores YA está
+      integrado y probado en este proyecto (Gateway.authorize() real, no
+      hipotético) — el pin de imagen exacto de OPA en sí es una mejora
+      pendiente, pero el componente no está bloqueando nada hoy.
+
+  - componente: Kyverno
+    capability_ref: "SIN BASELINE PREVIO — ver nota"
+    identidad:
+      proyecto: "kyverno/kyverno"
+      version_tag: "PENDIENTE (ENV-QUAL-01)"
+      source_commit: "PENDIENTE (ENV-QUAL-01)"
+      imagen_oficial: "PENDIENTE (ENV-QUAL-01)"
+      digest: "PENDIENTE (ENV-QUAL-01)"
+      repositorio_interno: "PENDIENTE"
+    licencia:
+      spdx_id: Apache-2.0
+      texto_y_notices: "Verificar NOTICE del tag exacto fijado"
+      dependencias_modificadas: "Ninguna"
+      obligaciones_distribucion_red: "Permisiva, sin obligación de red ni de código fuente"
+    supply_chain:
+      sbom: "PENDIENTE (ENV-QUAL-01)"
+      provenance_attestation: "PENDIENTE (ENV-QUAL-01)"
+      firma: "PENDIENTE (ENV-QUAL-01)"
+      scanner: "Trivy"
+      cves_conocidos: "PENDIENTE"
+      excepcion_con_caducidad: null
+    operacion_soberana:
+      instalacion_offline: "Soportada"
+      egress: "Ninguno requerido"
+      almacenamiento: "Policy reports vía Kubernetes API, sin store propio"
+      backup_restore: "No aplica (declarativo vía GitOps)"
+      upgrade_rollback: "PENDIENTE (ENV-QUAL-01)"
+    sostenibilidad:
+      cadencia: "Proyecto CNCF incubating, releases regulares"
+      mantenedores: "Nirmata + comunidad"
+      bus_factor: "Riesgo moderado — un vendor principal, pero gobernanza CNCF"
+      owner_interno: "PENDIENTE — asignar en Scope Gate G0"
+      soporte: "Comunidad + soporte comercial opcional"
+      alternativa_adapter: "Gatekeeper (YA es el baseline admission-control en compatibility/components.yaml, capability Policy)"
+    gate: ADMIT_WITH_OBLIGATIONS
+    gate_reason: >
+      GAP REAL detectado al construir este registro, no ocultado:
+      compatibility/components.yaml fija Gatekeeper (no Kyverno) como
+      admission control baseline (capability Policy). OSS-QUAL-01 (documento
+      v0.6.25.4) introduce Kyverno para "admisión, firma, attestations y
+      digest" — una responsabilidad más específica (verificación de firma
+      de imagen/SBOM en admission) que Gatekeeper no cubre igual de bien.
+      Admitido en principio (licencia y sostenibilidad limpias) pero
+      ADMIT_WITH_OBLIGATIONS explícito: decidir si sustituye a Gatekeeper o
+      convive con él es una decisión de arquitectura pendiente (candidata a
+      ADR nuevo), no algo que este registro deba decidir unilateralmente.
+
+  - componente: "Shuffle Community"
+    capability_ref: SOAR
+    identidad:
+      proyecto: "Shuffle/Shuffle"
+      version_tag: "PENDIENTE (ENV-QUAL-01)"
+      source_commit: "PENDIENTE (ENV-QUAL-01)"
+      imagen_oficial: "PENDIENTE (ENV-QUAL-01)"
+      digest: "PENDIENTE (ENV-QUAL-01)"
+      repositorio_interno: "PENDIENTE"
+    licencia:
+      spdx_id: AGPL-3.0-only
+      texto_y_notices: "Verificar NOTICE del tag exacto fijado — AGPL exige atención especial (ver obligaciones abajo)"
+      dependencias_modificadas: "Ninguna modificación local prevista"
+      obligaciones_distribucion_red: >
+        AGPL-3.0: SÍ hay obligación de red si se ofrece el servicio
+        modificado a terceros por red — ARGOS lo opera self-hosted para uso
+        interno del propio SOC, sin ofrecerlo como servicio a terceros, así
+        que la obligación de red no se activa HOY. Si eso cambiara
+        (ofrecer Shuffle como servicio a un cliente externo), sí se
+        activaría. Legal/OSS Officer debe confirmar esta lectura antes de
+        cualquier cambio de modelo de distribución.
+    supply_chain:
+      sbom: "PENDIENTE (ENV-QUAL-01)"
+      provenance_attestation: "PENDIENTE (ENV-QUAL-01)"
+      firma: "PENDIENTE (ENV-QUAL-01)"
+      scanner: "Trivy"
+      cves_conocidos: "PENDIENTE"
+      excepcion_con_caducidad: null
+    operacion_soberana:
+      instalacion_offline: "Soportada (self-hosted, sin SaaS)"
+      egress: "Ninguno requerido para operación base; playbooks individuales pueden requerir egress según su target (ya gobernado por target allowlist, ADR-011)"
+      almacenamiento: "Playbooks exportados a git (ya requisito de admisión del baseline)"
+      backup_restore: "PENDIENTE — sin script real todavía (mismo gap que Wazuh, ver ARG-025)"
+      upgrade_rollback: "PENDIENTE (ENV-QUAL-01)"
+    sostenibilidad:
+      cadencia: "Activo, un mantenedor principal (Shuffle AS)"
+      mantenedores: "Equipo pequeño — bus factor más alto que OPA/Cilium"
+      bus_factor: "Riesgo moderado-alto — proyecto más pequeño que los CNCF graduated de arriba"
+      owner_interno: "PENDIENTE — asignar en Scope Gate G0"
+      soporte: "Comunidad + soporte comercial opcional"
+      alternativa_adapter: "n8n / StackStorm (mismo contrato ActionResult/idempotency_key en argos-cyber-tools ya abstrae el ejecutor)"
+    gate: ADMIT_WITH_OBLIGATIONS
+    gate_reason: >
+      AGPL-3.0 con obligación de red no activada bajo el modelo de
+      operación actual (self-hosted interno, sin ofrecerlo a terceros) —
+      admisible, pero la obligación queda registrada explícitamente (no
+      silenciada) porque cambia si cambia el modelo de distribución.
+      Bus factor más alto que el resto de la lista: alternativa de
+      sustitución ya identificada, como exige ADR-013.
+
+  - componente: MISP
+    capability_ref: CTI
+    identidad:
+      proyecto: "MISP/MISP"
+      version_tag: "PENDIENTE (ENV-QUAL-01)"
+      source_commit: "PENDIENTE (ENV-QUAL-01)"
+      imagen_oficial: "PENDIENTE (ENV-QUAL-01)"
+      digest: "PENDIENTE (ENV-QUAL-01)"
+      repositorio_interno: "PENDIENTE"
+    licencia:
+      spdx_id: AGPL-3.0-only
+      texto_y_notices: "Verificar NOTICE del tag exacto fijado"
+      dependencias_modificadas: "Ninguna modificación local prevista"
+      obligaciones_distribucion_red: >
+        Misma lectura que Shuffle: self-hosted interno sin ofrecerlo a
+        terceros, obligación de red no activada hoy. Además: export control
+        sobre los propios feeds/IoC (dato, no código) — obligación
+        DISTINTA de la de licencia de software, ya anotada por separado.
+    supply_chain:
+      sbom: "PENDIENTE (ENV-QUAL-01)"
+      provenance_attestation: "PENDIENTE (ENV-QUAL-01)"
+      firma: "PENDIENTE (ENV-QUAL-01)"
+      scanner: "Trivy"
+      cves_conocidos: "PENDIENTE"
+      excepcion_con_caducidad: null
+    operacion_soberana:
+      instalacion_offline: "Soportada (self-hosted, sin SaaS)"
+      egress: "Feeds CTI externos SÍ requieren egress controlado — ya gobernado por ADR-007 (fuente, licencia, fecha y hash por snapshot)"
+      almacenamiento: "MySQL/Redis propios de MISP; snapshots ATT&CK/KEV/EPSS versionados aparte (ADR-007)"
+      backup_restore: "PENDIENTE (ENV-QUAL-01)"
+      upgrade_rollback: "PENDIENTE (ENV-QUAL-01)"
+    sostenibilidad:
+      cadencia: "Activo, CIRCL + comunidad, releases regulares"
+      mantenedores: "CIRCL (Luxembourg CERT) + comunidad amplia"
+      bus_factor: "Bajo riesgo — respaldado institucionalmente, no un side-project"
+      owner_interno: "PENDIENTE — asignar en Scope Gate G0"
+      soporte: "Comunidad; sin dependencia comercial"
+      alternativa_adapter: "OpenCTI (ya listado como optional_pi3 en compatibility/components.yaml)"
+    gate: ADMIT_WITH_OBLIGATIONS
+    gate_reason: >
+      AGPL-3.0, misma lectura de obligación de red que Shuffle (no
+      activada bajo uso interno). Export control sobre los feeds es una
+      obligación de DATOS, no de licencia de software — anotada aparte
+      para que no se confunda ni se pierda.
+
+  - componente: NATS/OTel
+    capability_ref: "Bus / Observability"
+    identidad:
+      proyecto: "nats-io/nats-server + open-telemetry/opentelemetry-collector"
+      version_tag: "PENDIENTE (ENV-QUAL-01)"
+      source_commit: "PENDIENTE (ENV-QUAL-01)"
+      imagen_oficial: "PENDIENTE (ENV-QUAL-01)"
+      digest: "PENDIENTE (ENV-QUAL-01)"
+      repositorio_interno: "PENDIENTE"
+    licencia:
+      spdx_id: Apache-2.0
+      texto_y_notices: "Verificar NOTICE del tag exacto fijado (dos proyectos, dos NOTICE)"
+      dependencias_modificadas: "Ninguna"
+      obligaciones_distribucion_red: "Permisiva, sin obligación de red ni de código fuente"
+    supply_chain:
+      sbom: "PENDIENTE (ENV-QUAL-01)"
+      provenance_attestation: "PENDIENTE (ENV-QUAL-01)"
+      firma: "PENDIENTE (ENV-QUAL-01)"
+      scanner: "Trivy"
+      cves_conocidos: "PENDIENTE"
+      excepcion_con_caducidad: null
+    operacion_soberana:
+      instalacion_offline: "Soportada"
+      egress: "Ninguno requerido; exportadores SaaS explícitamente excluidos (ADR-009)"
+      almacenamiento: "JetStream persiste eventos; OTel exporta a Prometheus/Grafana OSS (ADR-009)"
+      backup_restore: "PENDIENTE (ENV-QUAL-01)"
+      upgrade_rollback: "PENDIENTE (ENV-QUAL-01)"
+    sostenibilidad:
+      cadencia: "Ambos activos, releases regulares; OTel es CNCF graduated"
+      mantenedores: "Synadia (NATS) + gobernanza CNCF (OTel)"
+      bus_factor: "Bajo riesgo — ambos respaldados institucionalmente"
+      owner_interno: "PENDIENTE — asignar en Scope Gate G0"
+      soporte: "Comunidad + soporte comercial opcional (Synadia para NATS)"
+      alternativa_adapter: "Kafka (bus) / Jaeger+Prometheus directo (observability), sin adapter construido todavía"
+    gate: ADMIT
+    gate_reason: >
+      Apache-2.0 en ambos, ya en uso real (envelope/eventos vía NATS en
+      argos-core, trazas run_id ya correlacionadas). Sin obligación de red
+      ni gap de licencia.
+
+  - componente: "Keycloak/SPIRE"
+    capability_ref: Identity/secrets
+    identidad:
+      proyecto: "keycloak/keycloak + spiffe/spire"
+      version_tag: "PENDIENTE (ENV-QUAL-01)"
+      source_commit: "PENDIENTE (ENV-QUAL-01)"
+      imagen_oficial: "PENDIENTE (ENV-QUAL-01)"
+      digest: "PENDIENTE (ENV-QUAL-01)"
+      repositorio_interno: "PENDIENTE"
+    licencia:
+      spdx_id: Apache-2.0
+      texto_y_notices: "Verificar NOTICE del tag exacto fijado (dos proyectos, dos NOTICE)"
+      dependencias_modificadas: "Ninguna"
+      obligaciones_distribucion_red: "Permisiva, sin obligación de red ni de código fuente"
+    supply_chain:
+      sbom: "PENDIENTE (ENV-QUAL-01)"
+      provenance_attestation: "PENDIENTE (ENV-QUAL-01)"
+      firma: "PENDIENTE (ENV-QUAL-01)"
+      scanner: "Trivy"
+      cves_conocidos: "PENDIENTE"
+      excepcion_con_caducidad: null
+    operacion_soberana:
+      instalacion_offline: "Soportada"
+      egress: "Ninguno requerido"
+      almacenamiento: "Keycloak: base propia (Postgres); SPIRE: SVID de corta duración, sin store persistente de secretos"
+      backup_restore: "PENDIENTE (ENV-QUAL-01)"
+      upgrade_rollback: "PENDIENTE (ENV-QUAL-01) — rotación, backup y alternativa documentada exige ADR-004"
+    sostenibilidad:
+      cadencia: "Ambos activos, releases regulares; SPIRE es CNCF graduated"
+      mantenedores: "Red Hat (Keycloak) + gobernanza CNCF (SPIRE)"
+      bus_factor: "Bajo riesgo — ambos respaldados institucionalmente"
+      owner_interno: "PENDIENTE — asignar en Scope Gate G0"
+      soporte: "Comunidad + soporte comercial opcional (Red Hat SSO para Keycloak)"
+      alternativa_adapter: "Authentik (identidad humana); sin alternativa de workload identity documentada distinta de SPIRE"
+    gate: ADMIT
+    gate_reason: >
+      Apache-2.0 en ambos, ya en uso real (api/auth.py de argos-smartops
+      exige operador autenticado; Operator/OIDC ya modelado). Sin
+      obligación de red ni gap de licencia.
+
+  - componente: OpenBao
+    capability_ref: Identity/secrets
+    identidad:
+      proyecto: "openbao/openbao"
+      version_tag: "PENDIENTE (ENV-QUAL-01)"
+      source_commit: "PENDIENTE (ENV-QUAL-01)"
+      imagen_oficial: "PENDIENTE (ENV-QUAL-01)"
+      digest: "PENDIENTE (ENV-QUAL-01)"
+      repositorio_interno: "PENDIENTE"
+    licencia:
+      spdx_id: MPL-2.0
+      texto_y_notices: "Verificar NOTICE del tag exacto fijado"
+      dependencias_modificadas: >
+        MPL-2.0: la obligación de compartir código fuente se limita a los
+        FICHEROS MPL modificados — si ARGOS no toca el código de OpenBao,
+        no hay ficheros modificados que separar. Se anota aparte por si
+        algún día se aplica un parche local, para no perder ese requisito.
+      obligaciones_distribucion_red: "Sin obligación de red (MPL no es AGPL)"
+    supply_chain:
+      sbom: "PENDIENTE (ENV-QUAL-01)"
+      provenance_attestation: "PENDIENTE (ENV-QUAL-01)"
+      firma: "PENDIENTE (ENV-QUAL-01)"
+      scanner: "Trivy"
+      cves_conocidos: "PENDIENTE"
+      excepcion_con_caducidad: null
+    operacion_soberana:
+      instalacion_offline: "Soportada"
+      egress: "Ninguno requerido"
+      almacenamiento: "Secretos de corta duración, backend configurable (self-hosted)"
+      backup_restore: "PENDIENTE (ENV-QUAL-01) — validar operación/backup explícitamente exigido por la propia fila del documento"
+      upgrade_rollback: "PENDIENTE (ENV-QUAL-01)"
+    sostenibilidad:
+      cadencia: "Activo — fork comunitario de HashiCorp Vault tras el cambio de licencia de Vault (BUSL), gobernanza Linux Foundation"
+      mantenedores: "Linux Foundation + comunidad (IBM, otros)"
+      bus_factor: "Bajo riesgo — gobernanza de fundación, no un vendor único"
+      owner_interno: "PENDIENTE — asignar en Scope Gate G0"
+      soporte: "Comunidad; sin dependencia comercial"
+      alternativa_adapter: "HashiCorp Vault quedaría EXCLUIDO por su licencia BUSL no-OSS (ADR-013) — OpenBao es la alternativa, no al revés"
+    gate: ADMIT
+    gate_reason: >
+      MPL-2.0, gobernanza Linux Foundation, elegido precisamente PORQUE
+      Vault dejó de ser open source (BUSL) — es la opción que SÍ cumple
+      ADR-013, no una alternativa entre iguales.
+
+no_gate_unknown: true  # regla dura OSS-QUAL-01: ninguna fila UNKNOWN entra en la release candidata

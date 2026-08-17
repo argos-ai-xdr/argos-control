@@ -38,6 +38,35 @@ if backlog_path.exists():
 else:
     errors.append("project/backlog/backlog.yaml no existe")
 
+# OSS-QUAL-01: registro de admisión OSS — cada fila debe tener los 6
+# campos obligatorios y un gate válido; ninguna fila UNKNOWN entra en la
+# release candidata (regla dura del documento maestro v0.6.25.4, §2.3.1).
+oss_path = root / "compatibility/oss-admission-registry.yaml"
+VALID_GATES = {"ADMIT", "ADMIT_WITH_OBLIGATIONS", "REJECT"}
+REQUIRED_TOP_FIELDS = ("identidad", "licencia", "supply_chain", "operacion_soberana", "sostenibilidad", "gate")
+if oss_path.exists():
+    registry = yaml.safe_load(oss_path.read_text(encoding="utf-8")) or {}
+    components = registry.get("components", [])
+    if not components:
+        errors.append("compatibility/oss-admission-registry.yaml no declara ningún componente")
+    names = [c.get("componente") for c in components]
+    dupes = {n for n in names if names.count(n) > 1}
+    if dupes:
+        errors.append(f"compatibility/oss-admission-registry.yaml: componentes duplicados {sorted(dupes)}")
+    for component in components:
+        label = component.get("componente", "<sin nombre>")
+        missing = [f for f in REQUIRED_TOP_FIELDS if not component.get(f)]
+        if missing:
+            errors.append(f"oss-admission-registry: {label} sin campo(s) obligatorio(s) {missing}")
+        gate = component.get("gate")
+        if gate not in VALID_GATES:
+            errors.append(f"oss-admission-registry: {label} tiene gate={gate!r}, debe ser uno de {sorted(VALID_GATES)} (UNKNOWN no es admisible)")
+        spdx_id = (component.get("licencia") or {}).get("spdx_id")
+        if not spdx_id:
+            errors.append(f"oss-admission-registry: {label} sin licencia.spdx_id")
+else:
+    errors.append("compatibility/oss-admission-registry.yaml no existe")
+
 if errors:
     print("TEST FALLIDO:")
     for e in errors:

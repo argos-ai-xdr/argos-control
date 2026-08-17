@@ -1,6 +1,14 @@
 # Baseline de componentes open source P0
 # Fuente: documento maestro v0.5, sección 6.4. Toda adición fuera de esta lista requiere ADR-010
 # (valor medido, licencia y coste operativo evaluados antes de incorporarse).
+#
+# Para la decisión de ADMISIÓN OSS (licencia SPDX, obligaciones de
+# distribución/red, supply chain, sostenibilidad, gate ADMIT/
+# ADMIT_WITH_OBLIGATIONS/REJECT) de los componentes con licencia copyleft o
+# AGPL de esta lista, ver oss-admission-registry.yaml (OSS-QUAL-01,
+# propuesta v0.6.25.4, §2.3.1) — ese archivo también documenta a Kyverno,
+# introducido por esa sección sin baseline previo en este archivo (ver su
+# gate_reason para la decisión pendiente frente a Gatekeeper).
 
 components:
   - capability: GitOps
