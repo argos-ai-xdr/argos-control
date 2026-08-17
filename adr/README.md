@@ -23,5 +23,6 @@ Todas las decisiones ADR-001 a ADR-013 provienen del documento maestro v0.5 (sec
 | [ADR-017](ADR-017-incremental-v0625-roadmap-adoption.md) | Adopción incremental de la hoja de ruta v0.6.25.x (Fases A→L); ~32 contratos v1 nuevos explícitamente diferidos | RESUELTO PARA BASELINE — alcance de contratos diferido |
 | [ADR-018](ADR-018-platform-baseline-namespace-placement.md) | Ubicación de namespace para SPIRE y OpenBao (Fase B) — sin namespace nuevo, ambos en `argos-observability` | RESUELTO PARA BASELINE |
 | [ADR-019](ADR-019-tool-manifest-v1-secure-lifecycle.md) | ToolManifest v1 (Fase G) — `side_effect_class`, `rate_limit`, DENY incondicional de IRREVERSIBLE/DESTRUCTIVE, Version Downgrade | RESUELTO PARA BASELINE |
+| [ADR-020](ADR-020-safety-kernel-and-safety-envelope-v1.md) | Deterministic Safety Kernel + SafetyEnvelope v1, contrato 11 (Fase H) — producido, aún no consumido por OPA | RESUELTO PARA BASELINE — alcance explícitamente acotado |
 
 Plantilla para ADR nuevos: `../templates/adr/ADR-template.md`. Proponer uno nuevo vía el issue template `architecture-decision.yaml`.
