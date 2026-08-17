@@ -8,3 +8,4 @@
 | [`exceptions/`](exceptions/) | Proceso y log de excepciones con caducidad |
 | [`licenses/oss-dependency-policy.md`](licenses/oss-dependency-policy.md) | Condición de admisión de dependencias OSS |
 | [`policies/segregation-of-duties.md`](policies/segregation-of-duties.md) | Matriz de "no puede" por rol |
+| [`arg-028-governance-package.md`](arg-028-governance-package.md) | Paquete Gobierno de ARG-028 — estado real de cada pieza de arriba |
