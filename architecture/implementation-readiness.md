@@ -529,12 +529,17 @@ explícitamente y no "G0 PASS".
 **Hallazgo que requería acción antes de cualquier afirmación de
 seguridad de sistema** (independiente de G0): `R0-01` — el Safety
 Kernel/Independent Verifier no estaban conectados al gate de ejecución
-real. **Resuelto 2026-08-18** (`argos-cyber-tools@0d1316b`, ver §13):
-`mcp_gateway.Gateway.authorize()` exige ahora SafetyEnvelope+
+real. **Resuelto 2026-08-18** (`argos-cyber-tools@0d1316b`..`4d9b4e9`,
+ver §13): `mcp_gateway.Gateway.authorize()` exige ahora SafetyEnvelope+
 VerificationResult para `action=execute`, fail-closed, antes del
 chequeo de Approval; la cadena H→K.1 ya puede describirse como
-"protegiendo la ejecución" con evidencia real (129 tests). Residual no
-crítico sin cambiar: `SAFE_TO_EVALUATE` sigue sin ser alcanzable con
+"protegiendo la ejecución" con evidencia real (130 tests). Mapeado
+retroactivamente a `ARG-020`/`ARG-021`/`ARG-023`, no a un ARG nuevo.
+Auditoría de rigor posterior (mismo día) reveló `R0-01-RESIDUAL` (§13):
+la identidad de plan verificada es (tool, target, action), no una
+identidad de plan compartida entre `SafetyEnvelope`/`Approval` —
+documentado con test, no explotable hoy, mapeado a `ARG-023`. Residual
+no crítico sin cambiar: `SAFE_TO_EVALUATE` sigue sin ser alcanzable con
 datos reales porque `runbook_signed`/`runtime_trust_valid` dependen de
 un Sovereign Root of Trust que no existe (ver CAP-H-01,
 `traceability/implementation-readiness.yaml`) — eso es un gap de fuente
