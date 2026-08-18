@@ -105,17 +105,25 @@ jobs:
       - name: Bloquear secretos filtrados
         run: |
           pip install detect-secrets
-          # .github/workflows/ solo referencia NOMBRES de secretos
-          # (${{ secrets.X }}), nunca valores -- el plugin "Secret
-          # Keyword" de detect-secrets falso-positivea sobre la palabra
-          # "secrets" en YAML de Actions (encontrado en un run real,
-          # 2026-08-18: ci.yaml:14 "secrets: inherit"). Excluido aquí en
-          # vez de silenciado por repo -- mismo criterio que
-          # _contracts-scenarios.
+          # Exclusiones fijas, encontradas ejecutando runs reales (2026-08-18):
+          # - _contracts-scenarios/: checkout hermano, no es código de este repo.
+          # - .github/workflows/: solo referencia NOMBRES de secretos
+          #   (${{ secrets.X }}), nunca valores -- "Secret Keyword" falso-
+          #   positiveaba sobre "secrets: inherit".
+          # - .{mypy,pytest,ruff}_cache/: gitignored, pero YA EXISTEN en este
+          #   punto del job (los pasos Lint/Type check/Tests, arriba en este
+          #   mismo workflow, los crean) -- detect-secrets escanea el árbol
+          #   real, no lo que está en git, así que "Hex High Entropy String"
+          #   sobre CACHEDIR.TAG apareció en un run real aunque el archivo
+          #   nunca se comitea.
+          ARGS=(scan --all-files
+            --exclude-files '_contracts-scenarios/'
+            --exclude-files '\.github/workflows/'
+            --exclude-files '\.(mypy|pytest|ruff)_cache/'
+          )
           EXTRA_EXCLUDE="${{ inputs.secrets-scan-exclude }}"
           if [ -n "$EXTRA_EXCLUDE" ]; then
-            detect-secrets scan --all-files --exclude-files '_contracts-scenarios/' --exclude-files '\.github/workflows/' --exclude-files "$EXTRA_EXCLUDE" > /tmp/secrets-scan.json
-          else
-            detect-secrets scan --all-files --exclude-files '_contracts-scenarios/' --exclude-files '\.github/workflows/' > /tmp/secrets-scan.json
+            ARGS+=(--exclude-files "$EXTRA_EXCLUDE")
           fi
+          detect-secrets "${ARGS[@]}" > /tmp/secrets-scan.json
           python -c "import json,sys; d=json.load(open('/tmp/secrets-scan.json')); sys.exit(1 if d['results'] else 0)"
