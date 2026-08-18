@@ -216,28 +216,38 @@ claims:
       re-confirma con hechos frescos. Corregido en la reconciliación
       global A→L 2026-08-17: este claim estaba obsoleto desde antes de
       Fase H — declaraba NOT_SUPPORTED cuando el módulo ya existía y
-      estaba probado. Pendiente real, y sí crítico: mcp_gateway.
-      Gateway.authorize() (el gate que hoy gobierna execute de verdad)
-      NO consulta SafetyEnvelope ni VerificationResult -- cero
-      referencias por grep. El camino de ejecución real sigue protegido
-      solo por target_allowlist+Approval (CLAIM-001/006), no por Safety
-      Kernel/Verifier todavía.
+      estaba probado. R0-01 cerrado 2026-08-18 (argos-cyber-tools@0d1316b):
+      mcp_gateway.Gateway.authorize() ahora exige, para action=execute,
+      un SafetyEnvelope vigente y vinculado a tool/target/acción y un
+      VerificationResult=VERIFIED referenciando el mismo envelope_hash
+      (_check_safety_chain, fail-closed, antes del chequeo de Approval)
+      -- Approval sigue siendo autoridad independiente (§8 R0-01), no
+      sustituida. mcp_gateway.controlled_execution.
+      execute_with_authorization es el único punto de entrada real que
+      conecta authorize() con los tres executors; un test estructural
+      (test_no_production_code_calls_executors_directly_outside_the_boundary)
+      prueba que ningún otro código de producción los invoca.
     controls:
       - argos-core/services/safety_kernel/__init__.py
       - argos-core/services/independent_verifier/__init__.py
+      - argos-cyber-tools/mcp_gateway/__init__.py
+      - argos-cyber-tools/mcp_gateway/controlled_execution.py
     tests:
       - argos-core/tests/unit/test_safety_kernel.py
       - argos-core/tests/unit/test_independent_verifier.py
       - argos-core/tests/integration/test_k1_mission_verifier_vertical_slice.py
+      - argos-cyber-tools/tests/authorization/test_gateway.py
+      - argos-cyber-tools/tests/authorization/test_controlled_execution.py
     metric: safety_envelope_gateway_integration_rate
-    run_evidence: "argos-core pytest, 376 tests (verificado 2026-08-17); grep de mcp_gateway/__init__.py sin resultados para SafetyEnvelope/independent_verifier (verificado 2026-08-17)"
+    run_evidence: "argos-core pytest, 376 tests (verificado 2026-08-17); argos-cyber-tools pytest, 129 tests -- ruff y mypy en verde (verificado 2026-08-18, commit 0d1316b); grep de mcp_gateway/__init__.py SÍ encuentra SafetyEnvelope/VerificationResult (antes: cero referencias)"
     residual_risk: >
-      CRITICAL (ver architecture/implementation-readiness.md §5, R0-01):
-      Safety Kernel/Verifier son correctos y probados de forma aislada,
-      pero no están conectados al gate de ejecución real
-      (mcp_gateway.Gateway.authorize). SAFE_TO_EVALUATE sigue sin ser
-      alcanzable con datos reales hoy (runbook_signed/runtime_trust_valid
-      estructuralmente None, Sovereign Root of Trust no existe).
+      RESUELTO el hallazgo CRITICAL de conexión (R0-01, ver
+      architecture/implementation-readiness.md §13). Residual no crítico:
+      SAFE_TO_EVALUATE sigue sin ser alcanzable con datos reales hoy
+      (runbook_signed/runtime_trust_valid estructuralmente None, Sovereign
+      Root of Trust no existe) -- esto es un gap de fuente de hechos
+      externa, no de conexión entre módulos, y por tanto fuera del alcance
+      de R0-01.
     state: PARTIALLY_SUPPORTED
     gate: G5
 

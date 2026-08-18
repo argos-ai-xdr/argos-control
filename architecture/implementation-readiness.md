@@ -448,7 +448,7 @@ mismo. Ver §15, Decisión final.
 
 | ID | Hallazgo | Riesgo | Claim/gate afectado | Acción recomendada | Alcance estimado | ARG existente | Candidato ARG nuevo |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **R0-01** | `Gateway.authorize()` no consulta `SafetyEnvelope`/`VerificationResult` | Ejecución real posible sin pasar por Safety Kernel/Verifier | Invariante de seguridad §5 (CRITICAL) | Wire `mcp_gateway.Gateway.authorize()` para exigir un `SafetyEnvelope` `VERIFIED` antes de `execute` en tools con `approval_required` | Medio — 1 punto de integración, tests de regresión en `test_gateway.py` | Ninguno | `ARG-029` candidato (ver §8) o extensión de `ARG-020` |
+| ~~**R0-01**~~ | ~~`Gateway.authorize()` no consulta `SafetyEnvelope`/`VerificationResult`~~ **RESUELTO 2026-08-18** (`argos-cyber-tools@0d1316b`): `_check_safety_chain` exige SafetyEnvelope vigente+vinculado y VerificationResult=VERIFIED antes de `execute`, fail-closed, antes del chequeo de Approval; `mcp_gateway.controlled_execution.execute_with_authorization` conecta el gate con los 3 executors reales; test estructural prueba que ningún otro código los invoca. 129 tests (antes 99), ruff/mypy en verde. | — | — | — | — | Ninguno | — |
 | **R0-02** | G0 bloqueado por CI org-level | Bloquea `G0` formalmente | G0 | Resolver configuración de GitHub Actions a nivel de organización (acción del usuario, fuera de este repo) | Bajo (config, no código) | — | — |
 | R1-01 | `CLAIM-005` (AI sin credenciales) sin test automatizado que falle ante regresión | Deriva silenciosa si se añade un import prohibido | Assurance | Añadir check de arquitectura en CI (p. ej. `import-linter` o test que haga `ast`-grep) | Bajo | Ninguno | — |
 | R1-02 | `UNMAPPED_IMPLEMENTATION`: `ADR-053..067` sin ARG | Trazabilidad incompleta backlog↔ADR | Gobernanza | Decisión del usuario: A/B/C (§8) | — | — | `ARG-029+` si opción C |
@@ -467,12 +467,12 @@ solo como módulos. **R2 = antes de un gate MVP posterior.**
 ## 14. Exact Repository Commits and Validation Results
 
 ```
-generated_at: 2026-08-17
+generated_at: 2026-08-17 (argos-cyber-tools actualizado 2026-08-18 tras cierre de R0-01)
 argos-control            92c43257db7eeb57d1a3816587232c34c1b9709b main clean
 argos-platform            6062c9f1ce42a5ec080677a99431cfa12721bd59 main clean
 argos-contracts-scenarios 7f26630279e3f85027fc6e1734e9127edb920b9a main clean
 argos-core                0afbbc74146d6b1fa55bc1d486515fedb1a7b9ec main clean
-argos-cyber-tools         186a6bfb2be4d7628e9aee474a619b940afb71a8 main clean
+argos-cyber-tools         0d1316b8eb5614cc3d72c82cd1bdb1f2f592f3eb main clean
 argos-validation          b621a75e08c0b061e7ad20c4101714851f90366b main clean
 argos-smartops             62f05ac6a2a5297d17d06036045781d6490448a1 main clean
 ```
@@ -482,9 +482,9 @@ argos-smartops             62f05ac6a2a5297d17d06036045781d6490448a1 main clean
 | argos-core | `pytest` | 376 passed |
 | argos-core | `ruff check .` | All checks passed |
 | argos-core | `mypy services connectors` | Success: no issues found in 41 source files |
-| argos-cyber-tools | `pytest` | 99 passed |
+| argos-cyber-tools | `pytest` | 129 passed (99 + 30 tras cierre de R0-01, 2026-08-18) |
 | argos-cyber-tools | `ruff check .` | All checks passed |
-| argos-cyber-tools | `mypy .` | Success: no issues found in 43 source files |
+| argos-cyber-tools | `mypy .` | Success: no issues found in 45 source files |
 | argos-validation | `pytest` | 138 passed |
 | argos-validation | `ruff check .` | All checks passed |
 | argos-validation | `mypy .` | Success: no issues found in 47 source files |
@@ -498,7 +498,7 @@ argos-smartops             62f05ac6a2a5297d17d06036045781d6490448a1 main clean
 | argos-control | `scripts/validate.sh` | `validate OK` |
 | argos-control | `scripts/test.sh` | `test OK` (release-manifest schema, backlog IDs únicos, OSS registry, assurance ledger, AI component registry — todos auto-consistentes) |
 
-**Total tests Python**: 376 + 99 + 138 + 70 = **683**, todos en verde.
+**Total tests Python**: 376 + 129 + 138 + 70 = **713**, todos en verde.
 **GitHub Actions (org-level)**: `NOT_EVALUATED` en esta reconciliación —
 `gh` CLI y acceso de red a `api.github.com` no disponibles en este
 entorno de ejecución; se reporta el último estado conocido y fechado
@@ -525,11 +525,19 @@ legítimamente presentarse como evidencia técnica real (`V0626_INCLUDE`,
 cortar una versión, siempre que esa versión declare `G0=BLOCKED`
 explícitamente y no "G0 PASS".
 
-**Hallazgo que sí requiere acción antes de cualquier afirmación de
+**Hallazgo que requería acción antes de cualquier afirmación de
 seguridad de sistema** (independiente de G0): `R0-01` — el Safety
-Kernel/Independent Verifier no están conectados al gate de ejecución
-real. Recomendado resolverlo antes de describir la cadena H→K.1 como
-"protegiendo la ejecución" en cualquier documento externo.
+Kernel/Independent Verifier no estaban conectados al gate de ejecución
+real. **Resuelto 2026-08-18** (`argos-cyber-tools@0d1316b`, ver §13):
+`mcp_gateway.Gateway.authorize()` exige ahora SafetyEnvelope+
+VerificationResult para `action=execute`, fail-closed, antes del
+chequeo de Approval; la cadena H→K.1 ya puede describirse como
+"protegiendo la ejecución" con evidencia real (129 tests). Residual no
+crítico sin cambiar: `SAFE_TO_EVALUATE` sigue sin ser alcanzable con
+datos reales porque `runbook_signed`/`runtime_trust_valid` dependen de
+un Sovereign Root of Trust que no existe (ver CAP-H-01,
+`traceability/implementation-readiness.yaml`) — eso es un gap de fuente
+de hechos externa, no de conexión entre módulos.
 
 ---
 
