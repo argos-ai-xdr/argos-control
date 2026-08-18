@@ -18,6 +18,16 @@ on:
           contra ese repositorio hermano (p. ej. argos-validation, argos-core).
         type: string
         default: ""
+      control-ref:
+        description: >-
+          Si se indica (p. ej. "main"), hace checkout de
+          argos-ai-xdr/argos-control y expone su ruta en ARGOS_CONTROL_PATH
+          para repos cuyos tests cruzan referencias contra
+          project/backlog/backlog.yaml (p. ej. argos-validation, TRACE-01).
+          argos-control es público (2026-08-18) por el mismo motivo que
+          argos-contracts-scenarios: evita depender de un PAT cross-repo.
+        type: string
+        default: ""
       secrets-scan-exclude:
         description: >-
           Patrón regex adicional (además de _contracts-scenarios/ y
@@ -74,6 +84,18 @@ jobs:
           # rompe el checkout aunque el repo sea público.
           token: ${{ secrets.CONTRACTS_CHECKOUT_TOKEN || github.token }}
 
+      - name: Checkout argos-control (repo hermano)
+        if: inputs.control-ref != ''
+        uses: actions/checkout@v4
+        with:
+          repository: argos-ai-xdr/argos-control
+          ref: ${{ inputs.control-ref }}
+          path: _control
+          # argos-control es público -- mismo razonamiento que el checkout
+          # de argos-contracts-scenarios de arriba (fallback por si algún
+          # día vuelve a ser privado).
+          token: ${{ secrets.CONTROL_CHECKOUT_TOKEN || github.token }}
+
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
@@ -103,14 +125,15 @@ jobs:
         # repositorio y no debe lintarse (encontrado 2026-08-18 en un run
         # real: ruff reportaba EXE001 sobre
         # _contracts-scenarios/validators/validate_fixtures.py).
-        run: ruff check . --exclude _contracts-scenarios
+        run: ruff check . --exclude _contracts-scenarios --exclude _control
 
       - name: Type check (mypy)
-        run: mypy . --exclude '^_contracts-scenarios/' || true # elevar a bloqueante cuando el repo declare tipado estricto
+        run: mypy . --exclude '^_contracts-scenarios/' --exclude '^_control/' || true # elevar a bloqueante cuando el repo declare tipado estricto
 
       - name: Tests (pytest, con cobertura)
         env:
           ARGOS_CONTRACTS_PATH: ${{ inputs.contracts-ref != '' && format('{0}/_contracts-scenarios', github.workspace) || '' }}
+          ARGOS_CONTROL_PATH: ${{ inputs.control-ref != '' && format('{0}/_control', github.workspace) || '' }}
         run: pytest --cov --cov-report=term-missing
 
       - name: Bloquear secretos filtrados
@@ -136,6 +159,7 @@ jobs:
           ARGS=(scan --all-files
             --exclude-files '\.git/'
             --exclude-files '_contracts-scenarios/'
+            --exclude-files '_control/'
             --exclude-files '\.github/workflows/'
             --exclude-files '\.(mypy|pytest|ruff)_cache/'
           )
