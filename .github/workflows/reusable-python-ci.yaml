@@ -106,6 +106,12 @@ jobs:
         run: |
           pip install detect-secrets
           # Exclusiones fijas, encontradas ejecutando runs reales (2026-08-18):
+          # - .git/: --all-files desactiva el filtrado por .gitignore de
+          #   detect-secrets (que normalmente ya excluiría .git/) -- sin
+          #   esto, escanea objetos internos de git; .git/FETCH_HEAD
+          #   contiene un SHA de commit (40 hex) que "Hex High Entropy
+          #   String" marca como secreto en CUALQUIER repo, causa raíz
+          #   real de este fallo, no específica de argos-core.
           # - _contracts-scenarios/: checkout hermano, no es código de este repo.
           # - .github/workflows/: solo referencia NOMBRES de secretos
           #   (${{ secrets.X }}), nunca valores -- "Secret Keyword" falso-
@@ -117,6 +123,7 @@ jobs:
           #   sobre CACHEDIR.TAG apareció en un run real aunque el archivo
           #   nunca se comitea.
           ARGS=(scan --all-files
+            --exclude-files '\.git/'
             --exclude-files '_contracts-scenarios/'
             --exclude-files '\.github/workflows/'
             --exclude-files '\.(mypy|pytest|ruff)_cache/'
