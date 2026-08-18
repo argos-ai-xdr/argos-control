@@ -18,12 +18,13 @@ epics:
   E8: {name: Integración, objective: "Resiliencia, hardening, aceptación y demo", result: "ARGOS-CYB-01 completo y release candidate"}
   E9: {name: Aseguramiento, objective: "Roadmap A→L (ADR-051 en adelante) — Safety Kernel, Evidence/Trust, Semantic/Mission, Federation", result: "Trazabilidad de backlog formal para capacidad ya construida y probada, adoptada fuera del backlog original por ADR-051"}
   E10: {name: Resiliencia, objective: "Chaos Engineering & Chaos Monkey Validation Profile (Fase M, ADR-068) — fault injection real sobre el cyber-range, nunca camino productivo", result: "Safety guard fail-closed probado, catálogo CHAOS-01..20 declarado, quality gates CH-01..12"}
+  E11: {name: "Detection Engineering Loop", objective: "Kafka + ARGOS Global Investigator + generación gobernada de reglas Wazuh + backtesting + SOC feedback (Fase N, ADR-069) — AI_DIRECT_RULE_DEPLOYMENT=DENY", result: "Compilador determinista WazuhRuleSpec->XML probado, gate de despliegue bloqueado por CH-07/ARG-020, investigación L0-L5 determinista, CHAOS-21..32"}
 
 totals:
-  candidate_sp: 245
+  candidate_sp: 279
   p0_sp: 180
-  p1_sp: 65
-  note: "P1 no entra en el compromiso inicial; regla de pull para P1 en governance/gates/gates.md. ARG-029 (E9) es trazabilidad retroactiva de capacidad ya IMPLEMENTED_LOCALLY_AND_TESTED (Fase L), no trabajo pendiente — ver architecture/implementation-readiness.md §4.1. ARG-030..032 (E10, ADR-068) es capacidad nueva de Fase M, decidida por el usuario 2026-08-18 — sí es trabajo real, parcialmente ya IMPLEMENTED_LOCALLY_AND_TESTED (safety guard) y parcialmente BLOCKED_EXTERNAL (cluster de caos real)."
+  p1_sp: 99
+  note: "P1 no entra en el compromiso inicial; regla de pull para P1 en governance/gates/gates.md. ARG-029 (E9) es trazabilidad retroactiva de capacidad ya IMPLEMENTED_LOCALLY_AND_TESTED (Fase L), no trabajo pendiente — ver architecture/implementation-readiness.md §4.1. ARG-030..032 (E10, ADR-068) es capacidad nueva de Fase M, decidida por el usuario 2026-08-18 — sí es trabajo real, parcialmente ya IMPLEMENTED_LOCALLY_AND_TESTED (safety guard) y parcialmente BLOCKED_EXTERNAL (cluster de caos real). ARG-033..036 (E11, ADR-069) introduce Kafka en paralelo a NATS JetStream — desviación explícita de ADR-002, documentada en ADR-069, no oculta."
 
 items:
   - {id: ARG-001, epic: E1, sprint: S1, priority: P0, sp: 5,  story: "Crear repos, owners, branches, templates ADR y release manifest", dependencies: [], repo: argos-control}
@@ -62,3 +63,7 @@ items:
   - {id: ARG-030, epic: E10, sprint: "post-S8 (Fase M)", priority: P1, sp: 8,  story: "Chaos safety guard (autorización fail-closed environment+chaos_enabled+namespace_allowlist) y catálogo de 20 escenarios CHAOS-01..20 (ADR-068)", dependencies: [], repo: argos-validation}
   - {id: ARG-031, epic: E10, sprint: "post-S8 (Fase M)", priority: P1, sp: 8,  story: "Chaos Mesh (Helm) + RBAC + namespace scoping + NetworkPolicy deny-by-default para el chaos-controller-manager, acotado al cyber-range (ADR-068)", dependencies: [ARG-003], repo: argos-platform}
   - {id: ARG-032, epic: E10, sprint: "post-S8 (Fase M)", priority: P1, sp: 5,  story: "Regresión CHAOS-16 (reinicio mcp_gateway no permite replay de Approval ni reutilización cross-incident tras R0-01) y CHAOS-20 (dedupe_by_correlation_key sobrevive a reinicio del correlador) (ADR-068)", dependencies: [ARG-030], repo: multi}
+  - {id: ARG-033, epic: E11, sprint: "post-S8 (Fase N)", priority: P1, sp: 8,  story: "Kafka event streaming plane paralelo a NATS JetStream — namespace/RBAC/NetworkPolicy, topics wazuh.events/alerts/investigation/rule/soc (ADR-069, desviación explícita de ADR-002)", dependencies: [], repo: argos-platform}
+  - {id: ARG-034, epic: E11, sprint: "post-S8 (Fase N)", priority: P1, sp: 13, story: "WazuhRuleSpec v1 -> compilador determinista de XML (sin LLM) + RuleDeploymentGate con AI_DIRECT_RULE_DEPLOYMENT=DENY, bloqueado mientras CH-07/ARG-020 siga KNOWN_FAILING (ADR-069)", dependencies: [ARG-030], repo: argos-core}
+  - {id: ARG-035, epic: E11, sprint: "post-S8 (Fase N)", priority: P1, sp: 8,  story: "ARGOS Global Investigator — WeakSignal->GlobalInvestigationRequest, expansión progresiva de contexto L0-L5 determinista, ThreatAssessment (ADR-069)", dependencies: [], repo: argos-core}
+  - {id: ARG-036, epic: E11, sprint: "post-S8 (Fase N)", priority: P1, sp: 5,  story: "Backtesting de RuleCandidate contra histórico + SOCDecision/feedback loop + CHAOS-21..32 (ADR-068/069)", dependencies: [ARG-034, ARG-035], repo: multi}
