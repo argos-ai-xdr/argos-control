@@ -37,5 +37,6 @@ Todas las decisiones ADR-001 a ADR-013 provienen del documento maestro v0.5 (sec
 | [ADR-065](ADR-065-federated-artifact-and-federation-decision.md) | FederatedArtifact + evaluación local de confianza (Fase L) — "la federación transporta información, nunca autoridad"; ACCEPT != ACTIVE | RESUELTO PARA BASELINE — alcance explícitamente acotado |
 | [ADR-066](ADR-066-cross-domain-transfer-ifc-sanitization.md) | CrossDomainTransfer + IFC + sanitización determinista (Fase L) — ningún LLM desclasifica de forma autoritativa | RESUELTO PARA BASELINE |
 | [ADR-067](ADR-067-federation-transport-and-evidence-integration.md) | Transporte de prueba (TEST_LOCAL) + integración de evidencia de Federation con Fase J (Fase L) — REAL_TRANSPORT=BLOCKED_EXTERNAL | RESUELTO PARA BASELINE — alcance explícitamente acotado |
+| [ADR-068](ADR-068-chaos-engineering-resilience-validation.md) | Chaos Engineering & Chaos Monkey Validation Profile (Fase M, posterior a A→L) — Chaos Mesh P0 sobre Netflix Chaos Monkey (evita dependencia de Spinnaker), plano de validación nunca productivo, quality gates `CH-*` | RESUELTO PARA BASELINE — alcance explícitamente acotado |
 
 Plantilla para ADR nuevos: `../templates/adr/ADR-template.md`. Proponer uno nuevo vía el issue template `architecture-decision.yaml`.
