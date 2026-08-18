@@ -50,7 +50,17 @@ jobs:
           repository: argos-ai-xdr/argos-contracts-scenarios
           ref: ${{ inputs.contracts-ref }}
           path: _contracts-scenarios
-          token: ${{ secrets.CONTRACTS_CHECKOUT_TOKEN }}
+          # 2026-08-18: argos-contracts-scenarios pasó a público -- ya no
+          # requiere CONTRACTS_CHECKOUT_TOKEN para el checkout en sí
+          # (repos públicos se clonan con el github.token por defecto).
+          # `||` conserva el secreto como override real si el repo
+          # volviera a ser privado: un secreto vacío (no configurado)
+          # hace que actions/checkout falle con "Input required and not
+          # supplied: token" si se le pasa "" explícito -- core.getInput
+          # con required:true trata la cadena vacía igual que "no
+          # suministrado", así que sin este fallback un secreto ausente
+          # rompe el checkout aunque el repo sea público.
+          token: ${{ secrets.CONTRACTS_CHECKOUT_TOKEN || github.token }}
 
       - uses: actions/setup-python@v5
         with:
