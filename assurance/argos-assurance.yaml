@@ -226,7 +226,15 @@ claims:
       execute_with_authorization es el único punto de entrada real que
       conecta authorize() con los tres executors; un test estructural
       (test_no_production_code_calls_executors_directly_outside_the_boundary)
-      prueba que ningún otro código de producción los invoca.
+      prueba que ningún otro código de producción los invoca. R0-01-
+      RESIDUAL cerrado el mismo día (argos-cyber-tools@17e296a): una
+      sonda adversarial (no inspección estática) demostró EJECUTANDO el
+      ataque que una Approval firmada para el SafetyEnvelope de un
+      incidente A autorizaba execute() bajo el SafetyEnvelope de un
+      incidente B distinto sobre el mismo tool/target/action --
+      reclasificado de "no crítico" a CRITICAL tras la sonda, y corregido
+      en el mismo commit vinculando current_plan_hash al envelope_hash de
+      la solicitud.
     controls:
       - argos-core/services/safety_kernel/__init__.py
       - argos-core/services/independent_verifier/__init__.py
@@ -238,40 +246,36 @@ claims:
       - argos-core/tests/integration/test_k1_mission_verifier_vertical_slice.py
       - argos-cyber-tools/tests/authorization/test_gateway.py
       - argos-cyber-tools/tests/authorization/test_controlled_execution.py
+      - argos-cyber-tools/tests/adversarial/test_r0_01_residual_incident_confusion.py
     metric: safety_envelope_gateway_integration_rate
-    run_evidence: "argos-core pytest, 376 tests (verificado 2026-08-17); argos-cyber-tools pytest, 130 tests -- ruff y mypy en verde (verificado 2026-08-18, commit 4d9b4e9); grep de mcp_gateway/__init__.py SÍ encuentra SafetyEnvelope/VerificationResult (antes: cero referencias); grep sistemático en los 7 repos confirma que controlled_execution.py es el único entry point real hacia los executors"
+    run_evidence: "argos-core pytest, 376 tests (verificado 2026-08-17); argos-cyber-tools pytest, 136 tests -- ruff y mypy en verde (verificado 2026-08-18, commit 17e296a); grep de mcp_gateway/__init__.py SÍ encuentra SafetyEnvelope/VerificationResult (antes: cero referencias); grep sistemático en los 7 repos confirma que controlled_execution.py es el único entry point real hacia los executors; sonda adversarial confirma executor_call_count==0 para el confused-deputy entre incidentes (antes: ==1)"
     residual_risk: >
-      RESUELTO el hallazgo CRITICAL de conexión (R0-01, ver
-      architecture/implementation-readiness.md §13). Dos residuales no
-      críticos, ambos documentados con test que prueba el límite exacto
-      (no solo afirmado): (1) SAFE_TO_EVALUATE sigue sin ser alcanzable
-      con datos reales hoy (runbook_signed/runtime_trust_valid
-      estructuralmente None, Sovereign Root of Trust no existe) -- gap de
-      fuente de hechos externa, no de conexión entre módulos. (2) R0-01-
-      RESIDUAL: la identidad de "plan" verificada es el triple
-      (tool, target, action), no una identidad de plan compartida --
-      SafetyEnvelope.incident_ref y Approval.action_id (real en el
-      contrato v1) no se cruzan entre sí, así que dos SafetyEnvelope de
-      incidentes distintos sobre el mismo tool/target/action son
-      indistinguibles hoy para el gateway
-      (test_known_gap_safety_chain_does_not_bind_incident_identity_across_envelopes).
-      No explotable hoy: ningún llamante de producción real construye un
-      ToolCallRequest de ejecución todavía (graph.attack_path es el único
-      constructor real, y es validación de seguridad, nunca ejecución
-      real) -- mapeado a ARG-023 (integración end-to-end), no a un ARG
-      nuevo.
+      RESUELTOS los dos hallazgos CRITICAL de conexión encontrados en esta
+      reconciliación (R0-01 y R0-01-RESIDUAL, ver
+      architecture/implementation-readiness.md §13 -- este segundo se
+      documentó primero como "no crítico" por inspección estática y se
+      reclasificó a CRITICAL solo después de que una sonda adversarial
+      real lo confirmara ejecutando). Un residual no crítico permanece,
+      sin cambios: SAFE_TO_EVALUATE sigue sin ser alcanzable con datos
+      reales hoy (runbook_signed/runtime_trust_valid estructuralmente
+      None, Sovereign Root of Trust no existe) -- gap de fuente de hechos
+      externa, no de conexión entre módulos.
     state: PARTIALLY_SUPPORTED
     gate: G5
     next_action: >
-      Ninguna funcional hasta que ARG-023 introduzca el primer llamante
-      real de ejecución. Para avanzar CLAIM-009 más allá de
-      PARTIALLY_SUPPORTED en ese momento hace falta, no solo el binding
-      de identidad de plan (R0-01-RESIDUAL): tests de integración y
-      adversariales del camino completo con datos reales, las 3 rebanadas
-      verticales de acción real (isolate_kubernetes_workload/
-      scale_to_zero/increase_monitoring) end-to-end, y su integración con
-      EvidenceRoot/TransparencyReceipt (Fase J) -- no basta con "el código
-      se ve bien" (decisión del usuario, 2026-08-18).
+      El binding de identidad de plan (R0-01-RESIDUAL) ya está cerrado a
+      nivel de Gateway. Falta, para un llamante REAL (ARG-023): threadear
+      envelope_hash desde Safety Kernel hasta la creación de Approval
+      (argos-smartops/api/approvals vía PolicyDecision, que hoy no expone
+      envelope_hash). Ninguna otra acción funcional hasta que ARG-023
+      introduzca ese primer llamante real de ejecución. Para avanzar
+      CLAIM-009 más allá de PARTIALLY_SUPPORTED en ese momento hace falta,
+      además: tests de integración y adversariales del camino completo con
+      datos reales, las 3 rebanadas verticales de acción real
+      (isolate_kubernetes_workload/scale_to_zero/increase_monitoring)
+      end-to-end, y su integración con EvidenceRoot/TransparencyReceipt
+      (Fase J) -- no basta con "el código se ve bien" (decisión del
+      usuario, 2026-08-18).
 
   - id: CLAIM-011
     requirement: "Un FederatedArtifact remoto nunca concede autoridad de ejecución local"

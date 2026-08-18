@@ -449,7 +449,7 @@ mismo. Ver §15, Decisión final.
 | ID | Hallazgo | Riesgo | Claim/gate afectado | Acción recomendada | Alcance estimado | ARG existente | Candidato ARG nuevo |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | ~~**R0-01**~~ | ~~`Gateway.authorize()` no consulta `SafetyEnvelope`/`VerificationResult`~~ **RESUELTO 2026-08-18** (`argos-cyber-tools@0d1316b`): `_check_safety_chain` exige SafetyEnvelope vigente+vinculado y VerificationResult=VERIFIED antes de `execute`, fail-closed, antes del chequeo de Approval; `mcp_gateway.controlled_execution.execute_with_authorization` conecta el gate con los 3 executors reales; test estructural prueba que ningún otro código los invoca. 129 tests (antes 99), ruff/mypy en verde. | — | — | — | — | `ARG-020`/`ARG-021`/`ARG-023` (mapeado retroactivamente: el defecto pertenecía al flujo de autorización/ejecución que esas historias ya poseen — decisión del usuario 2026-08-18, no se abre `ARG-030`) | — |
-| R0-01-RESIDUAL | Binding de identidad de plan incompleto: `SafetyEnvelope`/`Approval`/`ActionRequest` se validan por el triple (tool, target, action), no por una identidad de plan compartida — `SafetyEnvelope.incident_ref` y `Approval.action_id` (real en el contrato v1) no se cruzan entre sí | Dos `SafetyEnvelope` de incidentes distintos sobre el mismo tool/target/action son indistinguibles hoy para el gateway | CLAIM-009 (residual, no crítico) | Cuando `ARG-023` introduzca el primer llamante real de ejecución con contexto de incidente, exigir `action_id`/`incident_ref` en `ToolCallRequest` y comprobarlos en `_check_safety_chain` | Bajo hoy (no explotable: `graph.attack_path` es el único constructor real de `ToolCallRequest` y nunca suministra Approval) — el alcance real depende del diseño del llamante que introduzca `ARG-023` | `ARG-023` | — |
+| ~~**R0-01-RESIDUAL**~~ | ~~Binding de identidad de plan incompleto: `SafetyEnvelope`/`Approval` se validaban por el triple (tool, target, action), no por una identidad de plan compartida~~ **RECLASIFICADO A CRITICAL Y RESUELTO 2026-08-18** (`argos-cyber-tools@17e296a`): declarado inicialmente "no crítico" por inspección estática (§13 versión anterior) — el usuario pidió una sonda adversarial REAL antes de aceptar esa severidad (`tests/adversarial/test_r0_01_residual_incident_confusion.py`). La sonda EJECUTÓ el ataque (`executor_call_count == 1`, cluster real aislado) con una Approval firmada para el SafetyEnvelope de un incidente A, reutilizada bajo el SafetyEnvelope de un incidente B distinto sobre el mismo tool/target/action — confirmando CRITICAL, no MAJOR/MINOR, exactamente por la regla que fijó el usuario ("cualquier combinación cruzada ejecuta → CRITICAL/R0"). Corregido en el MISMO commit que la sonda (nunca se publicó un estado vulnerable): `Gateway.authorize()` vincula ahora `current_plan_hash` al `envelope_hash` del SafetyEnvelope de la solicitud (`params={"safety_envelope_hash": ...}`, sin inventar campos nuevos bajo `FEATURE_FREEZE_A_L`). 136 tests (antes 130), ruff/mypy en verde. | — | — | — | — | `ARG-023` (fix aplicado ya; hilo completo Safety Kernel→PolicyDecision→Approval para un llamante REAL sigue pendiente de ese ARG) | — |
 | **R0-02** | G0 bloqueado por CI org-level | Bloquea `G0` formalmente | G0 | Resolver configuración de GitHub Actions a nivel de organización (acción del usuario, fuera de este repo) | Bajo (config, no código) | — | — |
 | R1-01 | `CLAIM-005` (AI sin credenciales) sin test automatizado que falle ante regresión | Deriva silenciosa si se añade un import prohibido | Assurance | Añadir check de arquitectura en CI (p. ej. `import-linter` o test que haga `ast`-grep) | Bajo | Ninguno | — |
 | R1-02 | `UNMAPPED_IMPLEMENTATION`: `ADR-053..067` sin ARG | Trazabilidad incompleta backlog↔ADR | Gobernanza | Decisión del usuario: A/B/C (§8) | — | — | `ARG-029+` si opción C |
@@ -468,12 +468,12 @@ solo como módulos. **R2 = antes de un gate MVP posterior.**
 ## 14. Exact Repository Commits and Validation Results
 
 ```
-generated_at: 2026-08-17 (argos-cyber-tools actualizado 2026-08-18 tras cierre de R0-01 y auditoria de binding)
+generated_at: 2026-08-17 (argos-cyber-tools actualizado 2026-08-18 tras cierre de R0-01 y R0-01-RESIDUAL, confirmado con sonda adversarial)
 argos-control            92c43257db7eeb57d1a3816587232c34c1b9709b main clean
 argos-platform            6062c9f1ce42a5ec080677a99431cfa12721bd59 main clean
 argos-contracts-scenarios 7f26630279e3f85027fc6e1734e9127edb920b9a main clean
 argos-core                0afbbc74146d6b1fa55bc1d486515fedb1a7b9ec main clean
-argos-cyber-tools         4d9b4e9 main clean
+argos-cyber-tools         17e296a main clean
 argos-validation          b621a75e08c0b061e7ad20c4101714851f90366b main clean
 argos-smartops             62f05ac6a2a5297d17d06036045781d6490448a1 main clean
 ```
@@ -483,7 +483,7 @@ argos-smartops             62f05ac6a2a5297d17d06036045781d6490448a1 main clean
 | argos-core | `pytest` | 376 passed |
 | argos-core | `ruff check .` | All checks passed |
 | argos-core | `mypy services connectors` | Success: no issues found in 41 source files |
-| argos-cyber-tools | `pytest` | 130 passed (99 + 31 tras cierre de R0-01 y documentación de R0-01-RESIDUAL, 2026-08-18) |
+| argos-cyber-tools | `pytest` | 136 passed (99 + 37 tras cierre de R0-01 y R0-01-RESIDUAL, 2026-08-18) |
 | argos-cyber-tools | `ruff check .` | All checks passed |
 | argos-cyber-tools | `mypy .` | Success: no issues found in 45 source files |
 | argos-validation | `pytest` | 138 passed |
@@ -499,7 +499,7 @@ argos-smartops             62f05ac6a2a5297d17d06036045781d6490448a1 main clean
 | argos-control | `scripts/validate.sh` | `validate OK` |
 | argos-control | `scripts/test.sh` | `test OK` (release-manifest schema, backlog IDs únicos, OSS registry, assurance ledger, AI component registry — todos auto-consistentes) |
 
-**Total tests Python**: 376 + 130 + 138 + 70 = **714**, todos en verde.
+**Total tests Python**: 376 + 136 + 138 + 70 = **720**, todos en verde.
 **GitHub Actions (org-level)**: `NOT_EVALUATED` en esta reconciliación —
 `gh` CLI y acceso de red a `api.github.com` no disponibles en este
 entorno de ejecución; se reporta el último estado conocido y fechado
@@ -533,15 +533,25 @@ real. **Resuelto 2026-08-18** (`argos-cyber-tools@0d1316b`..`4d9b4e9`,
 ver §13): `mcp_gateway.Gateway.authorize()` exige ahora SafetyEnvelope+
 VerificationResult para `action=execute`, fail-closed, antes del
 chequeo de Approval; la cadena H→K.1 ya puede describirse como
-"protegiendo la ejecución" con evidencia real (130 tests). Mapeado
-retroactivamente a `ARG-020`/`ARG-021`/`ARG-023`, no a un ARG nuevo.
+"protegiendo la ejecución" con evidencia real. Mapeado retroactivamente
+a `ARG-020`/`ARG-021`/`ARG-023`, no a un ARG nuevo.
+
 Auditoría de rigor posterior (mismo día) reveló `R0-01-RESIDUAL` (§13):
-la identidad de plan verificada es (tool, target, action), no una
-identidad de plan compartida entre `SafetyEnvelope`/`Approval` —
-documentado con test, no explotable hoy, mapeado a `ARG-023`. Residual
-no crítico sin cambiar: `SAFE_TO_EVALUATE` sigue sin ser alcanzable con
-datos reales porque `runbook_signed`/`runtime_trust_valid` dependen de
-un Sovereign Root of Trust que no existe (ver CAP-H-01,
+la identidad de plan verificada era (tool, target, action), no una
+identidad de plan compartida entre `SafetyEnvelope`/`Approval`. Se
+documentó inicialmente como "no crítico" por inspección estática — el
+usuario pidió, correctamente, una sonda adversarial REAL antes de
+aceptar esa severidad. La sonda (`tests/adversarial/
+test_r0_01_residual_incident_confusion.py`) EJECUTÓ el ataque
+(`executor_call_count == 1`) con una Approval de un incidente A
+reutilizada bajo el SafetyEnvelope de un incidente B: **CRITICAL, no
+"no crítico"**, exactamente por la regla que fijó el usuario. Corregido
+en el mismo commit que la sonda (`argos-cyber-tools@17e296a`) — nunca se
+publicó un estado vulnerable. 136 tests, ruff/mypy en verde.
+
+Residual no crítico sin cambiar: `SAFE_TO_EVALUATE` sigue sin ser
+alcanzable con datos reales porque `runbook_signed`/`runtime_trust_valid`
+dependen de un Sovereign Root of Trust que no existe (ver CAP-H-01,
 `traceability/implementation-readiness.yaml`) — eso es un gap de fuente
 de hechos externa, no de conexión entre módulos.
 
