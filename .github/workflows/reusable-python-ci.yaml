@@ -74,10 +74,16 @@ jobs:
           if [ -f pyproject.toml ]; then pip install -e ".[dev]"; fi
 
       - name: Lint (ruff)
-        run: ruff check .
+        # _contracts-scenarios/ (si existe -- contracts-ref != '') es un
+        # checkout hermano DENTRO del workspace solo para que los tests
+        # resuelvan ARGOS_CONTRACTS_PATH -- no es código de este
+        # repositorio y no debe lintarse (encontrado 2026-08-18 en un run
+        # real: ruff reportaba EXE001 sobre
+        # _contracts-scenarios/validators/validate_fixtures.py).
+        run: ruff check . --exclude _contracts-scenarios
 
       - name: Type check (mypy)
-        run: mypy . || true # elevar a bloqueante cuando el repo declare tipado estricto
+        run: mypy . --exclude '^_contracts-scenarios/' || true # elevar a bloqueante cuando el repo declare tipado estricto
 
       - name: Tests (pytest, con cobertura)
         env:
@@ -87,5 +93,5 @@ jobs:
       - name: Bloquear secretos filtrados
         run: |
           pip install detect-secrets
-          detect-secrets scan --all-files > /tmp/secrets-scan.json
+          detect-secrets scan --all-files --exclude-files '_contracts-scenarios/' > /tmp/secrets-scan.json
           python -c "import json,sys; d=json.load(open('/tmp/secrets-scan.json')); sys.exit(1 if d['results'] else 0)"
