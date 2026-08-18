@@ -126,4 +126,4 @@ jobs:
             ARGS+=(--exclude-files "$EXTRA_EXCLUDE")
           fi
           detect-secrets "${ARGS[@]}" > /tmp/secrets-scan.json
-          python -c "import json,sys; d=json.load(open('/tmp/secrets-scan.json')); sys.exit(1 if d['results'] else 0)"
+          python -c "import json,sys; d=json.load(open('/tmp/secrets-scan.json')); print(json.dumps(d['results'], indent=2)); sys.exit(1 if d['results'] else 0)"
