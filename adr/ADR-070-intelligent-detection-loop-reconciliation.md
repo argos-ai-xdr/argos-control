@@ -80,7 +80,7 @@ Ningún `anomaly_score` se interpreta sin poder responder: ¿con qué modelo, fe
 
 ### 11. Datasets de ground truth: separación por tiempo/escenario/host, no por fila aleatoria
 
-Un split aleatorio por fila puede dejar el mismo ataque sobre el mismo host repartido entre training y test, inflando artificialmente las métricas. `DE-27` (`argos-validation`) prueba estructuralmente que ningún `(scenario_id, host_id)` aparece a la vez en ambos conjuntos.
+Un split aleatorio por fila puede dejar el mismo ataque sobre el mismo host repartido entre training y test, inflando artificialmente las métricas. `DE-27` (`argos-validation`) prueba estructuralmente que ningún `(scenario_id, host_id)` aparece a la vez en ambos conjuntos. **Andamiaje IDLAB-05/06 (2026-08-18)**: `argos-validation/harness/loaders/detection_ground_truth.py` + `ground-truth/schemas/{nominal-baseline,detection-ground-truth}-manifest.schema.json` definen el formato real de captura de baseline nominal (IDLAB-05, `known_attacks_present` fijado a `false` por schema) y ground truth etiquetado con `split` train/test explícito por registro (IDLAB-06) — probado end-to-end contra `DE-27` (un manifiesto de ejemplo sin fuga produce `0.0`, uno deliberadamente filtrado produce `1.0`). Los manifiestos de ejemplo demuestran el formato, no son telemetría real — sigue `BLOCKED_EXTERNAL` sin laboratorio real.
 
 ### 12. Laboratorio OpenNebula: límite explícito, no oculto
 
