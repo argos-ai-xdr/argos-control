@@ -239,17 +239,39 @@ claims:
       - argos-cyber-tools/tests/authorization/test_gateway.py
       - argos-cyber-tools/tests/authorization/test_controlled_execution.py
     metric: safety_envelope_gateway_integration_rate
-    run_evidence: "argos-core pytest, 376 tests (verificado 2026-08-17); argos-cyber-tools pytest, 129 tests -- ruff y mypy en verde (verificado 2026-08-18, commit 0d1316b); grep de mcp_gateway/__init__.py SÍ encuentra SafetyEnvelope/VerificationResult (antes: cero referencias)"
+    run_evidence: "argos-core pytest, 376 tests (verificado 2026-08-17); argos-cyber-tools pytest, 130 tests -- ruff y mypy en verde (verificado 2026-08-18, commit 4d9b4e9); grep de mcp_gateway/__init__.py SÍ encuentra SafetyEnvelope/VerificationResult (antes: cero referencias); grep sistemático en los 7 repos confirma que controlled_execution.py es el único entry point real hacia los executors"
     residual_risk: >
       RESUELTO el hallazgo CRITICAL de conexión (R0-01, ver
-      architecture/implementation-readiness.md §13). Residual no crítico:
-      SAFE_TO_EVALUATE sigue sin ser alcanzable con datos reales hoy
-      (runbook_signed/runtime_trust_valid estructuralmente None, Sovereign
-      Root of Trust no existe) -- esto es un gap de fuente de hechos
-      externa, no de conexión entre módulos, y por tanto fuera del alcance
-      de R0-01.
+      architecture/implementation-readiness.md §13). Dos residuales no
+      críticos, ambos documentados con test que prueba el límite exacto
+      (no solo afirmado): (1) SAFE_TO_EVALUATE sigue sin ser alcanzable
+      con datos reales hoy (runbook_signed/runtime_trust_valid
+      estructuralmente None, Sovereign Root of Trust no existe) -- gap de
+      fuente de hechos externa, no de conexión entre módulos. (2) R0-01-
+      RESIDUAL: la identidad de "plan" verificada es el triple
+      (tool, target, action), no una identidad de plan compartida --
+      SafetyEnvelope.incident_ref y Approval.action_id (real en el
+      contrato v1) no se cruzan entre sí, así que dos SafetyEnvelope de
+      incidentes distintos sobre el mismo tool/target/action son
+      indistinguibles hoy para el gateway
+      (test_known_gap_safety_chain_does_not_bind_incident_identity_across_envelopes).
+      No explotable hoy: ningún llamante de producción real construye un
+      ToolCallRequest de ejecución todavía (graph.attack_path es el único
+      constructor real, y es validación de seguridad, nunca ejecución
+      real) -- mapeado a ARG-023 (integración end-to-end), no a un ARG
+      nuevo.
     state: PARTIALLY_SUPPORTED
     gate: G5
+    next_action: >
+      Ninguna funcional hasta que ARG-023 introduzca el primer llamante
+      real de ejecución. Para avanzar CLAIM-009 más allá de
+      PARTIALLY_SUPPORTED en ese momento hace falta, no solo el binding
+      de identidad de plan (R0-01-RESIDUAL): tests de integración y
+      adversariales del camino completo con datos reales, las 3 rebanadas
+      verticales de acción real (isolate_kubernetes_workload/
+      scale_to_zero/increase_monitoring) end-to-end, y su integración con
+      EvidenceRoot/TransparencyReceipt (Fase J) -- no basta con "el código
+      se ve bien" (decisión del usuario, 2026-08-18).
 
   - id: CLAIM-011
     requirement: "Un FederatedArtifact remoto nunca concede autoridad de ejecución local"

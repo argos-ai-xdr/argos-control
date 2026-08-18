@@ -448,7 +448,8 @@ mismo. Ver §15, Decisión final.
 
 | ID | Hallazgo | Riesgo | Claim/gate afectado | Acción recomendada | Alcance estimado | ARG existente | Candidato ARG nuevo |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| ~~**R0-01**~~ | ~~`Gateway.authorize()` no consulta `SafetyEnvelope`/`VerificationResult`~~ **RESUELTO 2026-08-18** (`argos-cyber-tools@0d1316b`): `_check_safety_chain` exige SafetyEnvelope vigente+vinculado y VerificationResult=VERIFIED antes de `execute`, fail-closed, antes del chequeo de Approval; `mcp_gateway.controlled_execution.execute_with_authorization` conecta el gate con los 3 executors reales; test estructural prueba que ningún otro código los invoca. 129 tests (antes 99), ruff/mypy en verde. | — | — | — | — | Ninguno | — |
+| ~~**R0-01**~~ | ~~`Gateway.authorize()` no consulta `SafetyEnvelope`/`VerificationResult`~~ **RESUELTO 2026-08-18** (`argos-cyber-tools@0d1316b`): `_check_safety_chain` exige SafetyEnvelope vigente+vinculado y VerificationResult=VERIFIED antes de `execute`, fail-closed, antes del chequeo de Approval; `mcp_gateway.controlled_execution.execute_with_authorization` conecta el gate con los 3 executors reales; test estructural prueba que ningún otro código los invoca. 129 tests (antes 99), ruff/mypy en verde. | — | — | — | — | `ARG-020`/`ARG-021`/`ARG-023` (mapeado retroactivamente: el defecto pertenecía al flujo de autorización/ejecución que esas historias ya poseen — decisión del usuario 2026-08-18, no se abre `ARG-030`) | — |
+| R0-01-RESIDUAL | Binding de identidad de plan incompleto: `SafetyEnvelope`/`Approval`/`ActionRequest` se validan por el triple (tool, target, action), no por una identidad de plan compartida — `SafetyEnvelope.incident_ref` y `Approval.action_id` (real en el contrato v1) no se cruzan entre sí | Dos `SafetyEnvelope` de incidentes distintos sobre el mismo tool/target/action son indistinguibles hoy para el gateway | CLAIM-009 (residual, no crítico) | Cuando `ARG-023` introduzca el primer llamante real de ejecución con contexto de incidente, exigir `action_id`/`incident_ref` en `ToolCallRequest` y comprobarlos en `_check_safety_chain` | Bajo hoy (no explotable: `graph.attack_path` es el único constructor real de `ToolCallRequest` y nunca suministra Approval) — el alcance real depende del diseño del llamante que introduzca `ARG-023` | `ARG-023` | — |
 | **R0-02** | G0 bloqueado por CI org-level | Bloquea `G0` formalmente | G0 | Resolver configuración de GitHub Actions a nivel de organización (acción del usuario, fuera de este repo) | Bajo (config, no código) | — | — |
 | R1-01 | `CLAIM-005` (AI sin credenciales) sin test automatizado que falle ante regresión | Deriva silenciosa si se añade un import prohibido | Assurance | Añadir check de arquitectura en CI (p. ej. `import-linter` o test que haga `ast`-grep) | Bajo | Ninguno | — |
 | R1-02 | `UNMAPPED_IMPLEMENTATION`: `ADR-053..067` sin ARG | Trazabilidad incompleta backlog↔ADR | Gobernanza | Decisión del usuario: A/B/C (§8) | — | — | `ARG-029+` si opción C |
@@ -467,12 +468,12 @@ solo como módulos. **R2 = antes de un gate MVP posterior.**
 ## 14. Exact Repository Commits and Validation Results
 
 ```
-generated_at: 2026-08-17 (argos-cyber-tools actualizado 2026-08-18 tras cierre de R0-01)
+generated_at: 2026-08-17 (argos-cyber-tools actualizado 2026-08-18 tras cierre de R0-01 y auditoria de binding)
 argos-control            92c43257db7eeb57d1a3816587232c34c1b9709b main clean
 argos-platform            6062c9f1ce42a5ec080677a99431cfa12721bd59 main clean
 argos-contracts-scenarios 7f26630279e3f85027fc6e1734e9127edb920b9a main clean
 argos-core                0afbbc74146d6b1fa55bc1d486515fedb1a7b9ec main clean
-argos-cyber-tools         0d1316b8eb5614cc3d72c82cd1bdb1f2f592f3eb main clean
+argos-cyber-tools         4d9b4e9 main clean
 argos-validation          b621a75e08c0b061e7ad20c4101714851f90366b main clean
 argos-smartops             62f05ac6a2a5297d17d06036045781d6490448a1 main clean
 ```
@@ -482,7 +483,7 @@ argos-smartops             62f05ac6a2a5297d17d06036045781d6490448a1 main clean
 | argos-core | `pytest` | 376 passed |
 | argos-core | `ruff check .` | All checks passed |
 | argos-core | `mypy services connectors` | Success: no issues found in 41 source files |
-| argos-cyber-tools | `pytest` | 129 passed (99 + 30 tras cierre de R0-01, 2026-08-18) |
+| argos-cyber-tools | `pytest` | 130 passed (99 + 31 tras cierre de R0-01 y documentación de R0-01-RESIDUAL, 2026-08-18) |
 | argos-cyber-tools | `ruff check .` | All checks passed |
 | argos-cyber-tools | `mypy .` | Success: no issues found in 45 source files |
 | argos-validation | `pytest` | 138 passed |
@@ -498,7 +499,7 @@ argos-smartops             62f05ac6a2a5297d17d06036045781d6490448a1 main clean
 | argos-control | `scripts/validate.sh` | `validate OK` |
 | argos-control | `scripts/test.sh` | `test OK` (release-manifest schema, backlog IDs únicos, OSS registry, assurance ledger, AI component registry — todos auto-consistentes) |
 
-**Total tests Python**: 376 + 129 + 138 + 70 = **713**, todos en verde.
+**Total tests Python**: 376 + 130 + 138 + 70 = **714**, todos en verde.
 **GitHub Actions (org-level)**: `NOT_EVALUATED` en esta reconciliación —
 `gh` CLI y acceso de red a `api.github.com` no disponibles en este
 entorno de ejecución; se reporta el último estado conocido y fechado
