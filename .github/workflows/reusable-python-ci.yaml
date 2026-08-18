@@ -83,7 +83,18 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-          if [ -f pyproject.toml ]; then pip install -e ".[dev]"; fi
+          # editable_mode=compat (2026-08-18, run real): el modo "strict"
+          # por defecto de pip/setuptools recientes genera un finder con
+          # mapeo estático nombre->fichero para instalaciones editable con
+          # varios paquetes de nivel superior (packages.find con include
+          # de varios patrones) -- en argos-cyber-tools esto producía
+          # "ImportError: cannot import name X from 'graph' (unknown
+          # location)" SOLO para el paquete `graph` en sí (sus submódulos
+          # importaban bien por separado), no reproducible en local.
+          # compat vuelve al mecanismo simple (.pth, todo el árbol en
+          # sys.path), documentado como solución para exactamente esta
+          # clase de problema.
+          if [ -f pyproject.toml ]; then pip install -e ".[dev]" --config-settings editable_mode=compat; fi
 
       - name: Lint (ruff)
         # _contracts-scenarios/ (si existe -- contracts-ref != '') es un
