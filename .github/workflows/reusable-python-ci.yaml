@@ -18,6 +18,18 @@ on:
           contra ese repositorio hermano (p. ej. argos-validation, argos-core).
         type: string
         default: ""
+      secrets-scan-exclude:
+        description: >-
+          Patrón regex adicional (además de _contracts-scenarios/ y
+          .github/workflows/, ya excluidos siempre) para detect-secrets --
+          para falsos positivos específicos del repo llamador que no se
+          pueden silenciar con un comentario `pragma: allowlist secret`
+          (p. ej. JSON, que no admite comentarios). Ejemplo real
+          (argos-cyber-tools): "tool_catalog/signatures/" -- hashes de
+          integridad publicados, no secretos, que el heurístico "Hex High
+          Entropy String" no puede distinguir de una clave real.
+        type: string
+        default: ""
     secrets:
       CONTRACTS_CHECKOUT_TOKEN:
         description: >-
@@ -93,5 +105,17 @@ jobs:
       - name: Bloquear secretos filtrados
         run: |
           pip install detect-secrets
-          detect-secrets scan --all-files --exclude-files '_contracts-scenarios/' > /tmp/secrets-scan.json
+          # .github/workflows/ solo referencia NOMBRES de secretos
+          # (${{ secrets.X }}), nunca valores -- el plugin "Secret
+          # Keyword" de detect-secrets falso-positivea sobre la palabra
+          # "secrets" en YAML de Actions (encontrado en un run real,
+          # 2026-08-18: ci.yaml:14 "secrets: inherit"). Excluido aquí en
+          # vez de silenciado por repo -- mismo criterio que
+          # _contracts-scenarios.
+          EXTRA_EXCLUDE="${{ inputs.secrets-scan-exclude }}"
+          if [ -n "$EXTRA_EXCLUDE" ]; then
+            detect-secrets scan --all-files --exclude-files '_contracts-scenarios/' --exclude-files '\.github/workflows/' --exclude-files "$EXTRA_EXCLUDE" > /tmp/secrets-scan.json
+          else
+            detect-secrets scan --all-files --exclude-files '_contracts-scenarios/' --exclude-files '\.github/workflows/' > /tmp/secrets-scan.json
+          fi
           python -c "import json,sys; d=json.load(open('/tmp/secrets-scan.json')); sys.exit(1 if d['results'] else 0)"
