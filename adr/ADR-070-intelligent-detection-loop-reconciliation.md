@@ -82,6 +82,22 @@ Ningún `anomaly_score` se interpreta sin poder responder: ¿con qué modelo, fe
 
 Un split aleatorio por fila puede dejar el mismo ataque sobre el mismo host repartido entre training y test, inflando artificialmente las métricas. `DE-27` (`argos-validation`) prueba estructuralmente que ningún `(scenario_id, host_id)` aparece a la vez en ambos conjuntos. **Andamiaje IDLAB-05/06 (2026-08-18)**: `argos-validation/harness/loaders/detection_ground_truth.py` + `ground-truth/schemas/{nominal-baseline,detection-ground-truth}-manifest.schema.json` definen el formato real de captura de baseline nominal (IDLAB-05, `known_attacks_present` fijado a `false` por schema) y ground truth etiquetado con `split` train/test explícito por registro (IDLAB-06) — probado end-to-end contra `DE-27` (un manifiesto de ejemplo sin fuga produce `0.0`, uno deliberadamente filtrado produce `1.0`). Los manifiestos de ejemplo demuestran el formato, no son telemetría real — sigue `BLOCKED_EXTERNAL` sin laboratorio real.
 
+**v2 (2026-08-19)**: el formato se amplía a `ScenarioRun` completo (`manifest_id`/`environment`/`provenance`/`contamination_check`/`evidence` en IDLAB-05; `environment_ref`/`baseline_ref`/`provenance`/`scenario_runs[]` con técnica MITRE, target, ejecución, observables esperados/observados y `ground_truth.label_source` en IDLAB-06), de forma que el manifiesto por sí solo reconstruye qué entorno + configuración (con hash) + versión de reglas + sensores + versión de injector + escenario + intervalo + split produjo cada dataset — listo para recibir telemetría real de OpenNebula sin rediseño. El split ahora es por **`scenario_run_id` completo** (nunca por evento individual: todos los `event_refs`/`evidence_refs` de un run viajan al mismo lado), y `DE-27` se extiende con cinco checks nuevos (`evaluate_scenario_run_id_leakage`, `evaluate_split_group_leakage`, `evaluate_event_ref_leakage`, `evaluate_evidence_ref_leakage`, `evaluate_label_provenance`) más `evaluate_baseline_contamination` — este último impone que un `NominalBaselineManifest` cuyo `contamination_check` encuentre un ataque conocido no es un baseline nominal válido, ni con `known_attacks_present=false` declarado de partida. `ground_truth.label_source` es un enum cerrado que EXCLUYE `detector_output`: el ground truth nunca puede derivarse del propio sistema evaluado. `is_example: true` fuerza `source_mode: SYNTHETIC` por schema — ningún fixture de prueba puede acabar etiquetado `REAL`. 203 tests reales en `argos-validation` (antes 172). Sigue `BLOCKED_EXTERNAL`: nada de esto se ha ejecutado contra un laboratorio real todavía.
+
+Estado de salida de este incremento (deliberadamente detenido aquí, no se avanza a modelo entrenado sin datos reales que lo justifiquen):
+
+```text
+IDLAB_05_SCHEMA                    = IMPLEMENTED_LOCALLY_AND_TESTED
+IDLAB_06_SCHEMA                    = IMPLEMENTED_LOCALLY_AND_TESTED
+IDLAB_DATA_PROVENANCE              = IMPLEMENTED_LOCALLY_AND_TESTED
+DE_27_DATASET_INTEGRITY            = EXTENDED_AND_TESTED
+REAL_NOMINAL_BASELINE              = BLOCKED_EXTERNAL
+REAL_GROUND_TRUTH                  = BLOCKED_EXTERNAL
+STATISTICAL_DETECTION_PERFORMANCE  = NOT_EVALUATED
+```
+
+El siguiente hito no es otro schema: es recibir el primer material de laboratorio real y producir el primer `NominalBaselineManifest` REAL (`IDLAB-05`). Solo entonces se congela `DATASET-v1` y empieza el bake-off de detectores (Isolation Forest/OCSVM/LOF) — explícitamente NO implementado en este incremento.
+
 ### 12. Laboratorio OpenNebula: límite explícito, no oculto
 
 Un RKE2 single-node **no valida HA real de control-plane** (failover, quorum multi-nodo, recuperación). Se documenta como límite conocido del cyber-range, no como capacidad demostrada. Dos perfiles de laboratorio, sin mezclar en el primer MVP: `LAB-K8S` (Chaos Mesh real) y `LAB-VM` (mecanismo de caos de infraestructura sin decidir, `TBD`).
@@ -102,7 +118,7 @@ Las "Fases 1-8" del acta (cyber-range, Wazuh SIEM, sensores, inyección de ataqu
 | DE-24 | Completitud del linaje de feedback SOC = 1.00 | no |
 | DE-25 | Escrituras directas de IA al Wazuh Indexer = 0 | sí |
 | DE-26 | Sidecar capaz de desplegar reglas = 0 | sí |
-| DE-27 | Fuga de escenario/host entre conjuntos train/test = 0 | sí |
+| DE-27 | Fuga de escenario/host/scenario_run_id/split_group/event_ref/evidence_ref entre conjuntos train/test, o baseline contaminado = 0 | sí |
 | DE-28 | Promoción automática de modelo desde feedback SOC = 0 | sí |
 | DE-29 | Telemetría sintética aceptada como REAL = 0 | sí |
 | DE-30 | Regla generada para un patrón multivariante no reducible = 0 | no |
