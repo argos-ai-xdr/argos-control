@@ -33,23 +33,32 @@ exactos: [`release-manifest.yaml`](release-manifest.yaml).
 | `argos-control` | Gobierno, ADR, backlog, gates, registro OSS, releases | ✅ verde |
 | `argos-platform` | IaC, cyber-range, namespaces, kill-switch/reset | ✅ verde |
 | `argos-contracts-scenarios` | Envelope + 10 contratos v1, fixtures, escenario ARGOS-CYB-01 | ✅ verde |
-| `argos-core` | Adapters, normalizer, correlator, risk-engine, recommendation | ❌ bloqueado |
-| `argos-cyber-tools` | Grafo RBAC/exposición, MCP gateway, executors, rollback | ❌ bloqueado |
-| `argos-validation` | Harness, evaluadores, suites, acceptance runner | ❌ bloqueado |
-| `argos-smartops` | API operador, approvals, handover | ❌ bloqueado |
+| `argos-core` | Adapters, normalizer, correlator, risk-engine, recommendation | ✅ verde |
+| `argos-cyber-tools` | Grafo RBAC/exposición, MCP gateway, executors, rollback | ✅ verde |
+| `argos-validation` | Harness, evaluadores, suites, acceptance runner | ✅ verde |
+| `argos-smartops` | API operador, approvals, handover | ✅ verde |
 
-**Desviación activa**: los 4 repos marcados ❌ fallan en CI con "workflow
-was not found" al invocar el reusable workflow de `argos-control`
-(`reusable-python-ci.yaml`) — 0 jobs creados, no un fallo de test. Se
-verificó exhaustivamente que `access_level=organization` está bien
-configurado, el secreto `CONTRACTS_CHECKOUT_TOKEN` existe y es visible
-para los 4 repos, y el archivo remoto es byte-idéntico al local. La causa
-raíz probable requiere visibilidad `admin:org` sobre
-`github.com/organizations/argos-ai-xdr/settings/actions` que este token
-no tiene — sigue sin resolver, ver `argos-validation/traceability.yaml`
-gate G0. **Todo el código de los 4 repos bloqueados pasa limpio en
-local** (`pytest`+`ruff`+`mypy`, verificado en cada commit de esta
-sesión) — el bloqueo es de configuración de CI, no de calidad del código.
+**RESUELTO 2026-08-19 (era una desviación activa)**: los 4 repos que
+fallaban con "workflow was not found" al invocar el reusable workflow
+de `argos-control` (0 jobs creados, no un fallo de test) tenían una
+causa raíz distinta de la hipótesis `admin:org` que se manejaba antes —
+confirmada con el conector GitHub del usuario: **un repo CALLER
+público no puede consumir un reusable workflow de un repo CALLEE
+privado** (`argos-control` era privado). Se pasó `argos-core`,
+`argos-cyber-tools`, `argos-validation`, `argos-smartops` a privados;
+`argos-control`/`argos-contracts-scenarios` a públicos (evita depender
+de un PAT `CONTRACTS_CHECKOUT_TOKEN`/`CONTROL_CHECKOUT_TOKEN` nunca
+configurado). Dos bugs reales encontrados y corregidos en el camino
+(no reruns oportunistas): hash de integridad del catálogo no
+reproducible entre Windows/Linux por CRLF/LF
+(`argos-cyber-tools@1154fc7`), y `TRACE-01` degradando en silencio a
+aviso en CI por falta de checkout hermano de `argos-control`
+(`argos-validation@b55bc1a`/`3b412bf`, `argos-control@9af3f61`). CI
+7/7 GREEN verificado run por run vía la API de GitHub, no solo el
+`conclusion` agregado — ver
+`argos-control/architecture/implementation-readiness.md` §1/§9/§13/§15
+y `argos-validation/traceability.yaml` gate G0 (que sigue `PARTIAL`
+por owners/calendario, no por CI).
 
 ## 2. Namespaces
 
@@ -156,8 +165,8 @@ en el código, verificado archivo por archivo:
 
 Ninguna oculta — cada una tiene su propio issue/nota rastreable:
 
-1. **CI bloqueada en 4/7 repos** (sección 1) — configuración de
-   organización, pendiente de resolución externa.
+1. ~~**CI bloqueada en 4/7 repos**~~ **RESUELTO 2026-08-19** (sección 1)
+   — CI 7/7 GREEN, dos bugs reales corregidos en el camino.
 2. **ENV-QUAL-01 (cualificación OSC/Gardener)**: `BLOCKED`, sin vía de
    ingeniería posible sin acceso a un cluster real.
 3. **CAP-01 (presupuesto de telemetría/sizing)**: sin datos del dataset

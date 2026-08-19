@@ -98,6 +98,20 @@ STATISTICAL_DETECTION_PERFORMANCE  = NOT_EVALUATED
 
 El siguiente hito no es otro schema: es recibir el primer material de laboratorio real y producir el primer `NominalBaselineManifest` REAL (`IDLAB-05`). Solo entonces se congela `DATASET-v1` y empieza el bake-off de detectores (Isolation Forest/OCSVM/LOF) — explícitamente NO implementado en este incremento.
 
+**Freeze de IDLAB-05/06 v2 (2026-08-19)**: `argos-validation/ground-truth/schemas/{nominal-baseline,detection-ground-truth}-manifest.schema.json` quedan `FROZEN` a partir de aquí. Cambios permitidos: corrección de bug/seguridad. Cambios NO permitidos sin una captura real de laboratorio que los justifique: cualquier ampliación especulativa de campo/enum ("por si acaso"). El siguiente cambio de schema debe estar motivado por un dato real, no por una posibilidad teórica.
+
+**Ruta prevista hacia `DATASET-01`** (documentada aquí para cuando exista el laboratorio, NO implementada todavía — ningún código de esta sección existe):
+
+```text
+IDLAB-05 real capture → NominalBaselineManifest v2 → contamination_check → DE-27 → PASS → BASELINE-01 (frozen)
+IDLAB-06 real scenario runs → DetectionGroundTruthManifest v2 → ScenarioRun provenance → DE-27 → PASS → GROUND-TRUTH-01 (frozen)
+BASELINE-01 + GROUND-TRUTH-01 → DATASET-01 → EvidenceManifest → EvidenceRoot → dataset freeze
+```
+
+`DATASET-01` (y cualquier sucesor `DATASET-0N`) es inmutable una vez congelado: si algo material cambia (entorno, config, reglas, scenario_runs), se crea `DATASET-02`, nunca se reescribe `DATASET-01` — la reconstrucción completa (manifest hash, environment snapshot, topology_ref, config Wazuh/Falco/Cilium, collector versions, scenario runs, split, provenance, contamination result, EvidenceRoot) es el criterio de "frozen", no solo un archivo que nadie edita. `DATASET-01` es el primer dataset que el Statistical Detection Engine podría consumir — antes de eso, ningún bake-off es legítimo.
+
+Antes de entrenar cualquier modelo, se predefiniría (sin implementar todavía) un `DetectionEvaluationProtocol v1` congelado de antemano (dataset_ref, candidate_models, primary/operational/robustness metrics, `train_test_split_mutation: forbidden`, `ground_truth_mutation: forbidden`) para que el bake-off sea comparable y no se mueva la portería tras ver resultados. El experimento distinguiría dos niveles separados: **E1** (calidad del Statistical Detector solo: telemetría→WeakSignal) y **E2** (valor añadido del Global Investigator: WeakSignal→ThreatAssessment, con una métrica de utilidad tipo `Global Investigation Resolution Rate` = `resolved_after_context / initially_uncertain`, junto con su coste en queries/latencia/tokens/tiempo SOC) — un Investigator excelente no debe ocultar un detector mediocre, ni al revés.
+
 ### 12. Laboratorio OpenNebula: límite explícito, no oculto
 
 Un RKE2 single-node **no valida HA real de control-plane** (failover, quorum multi-nodo, recuperación). Se documenta como límite conocido del cyber-range, no como capacidad demostrada. Dos perfiles de laboratorio, sin mezclar en el primer MVP: `LAB-K8S` (Chaos Mesh real) y `LAB-VM` (mecanismo de caos de infraestructura sin decidir, `TBD`).

@@ -41,16 +41,28 @@ documento (§14).
 
 **G0** (el gate real de "owners, accesos, calendario, P0 y DoR
 aprobados", `governance/gates/gates.md`) está **BLOCKED**, y no por un
-hueco técnico de A→L: (a) `argos-validation/traceability.yaml` ya lo
+hueco técnico de A→L: ~~(a) `argos-validation/traceability.yaml` ya lo
 declara `PARTIAL` por CI de GitHub Actions no verde en 4/7 repos
 ("workflow was not found"), pendiente de una acción del usuario fuera de
-este repositorio; (b) el hito M0 del calendario real
+este repositorio~~; **(a) RESUELTO 2026-08-19**: CI 7/7 GREEN en los 7
+repos, verificado run por run vía la API de GitHub (no solo el
+`conclusion`, cada step: checkout/lint/type-check/tests/secrets-scan) —
+`BLK-11` (§9) y `R0-02` (§13) cerrados. Dos bugs reales encontrados y
+corregidos en el camino, no reruns oportunistas: fallo de
+reproducibilidad del hash de integridad del catálogo por CRLF/LF
+(`argos-cyber-tools@1154fc7`) y `TRACE-01` degradando en silencio a
+aviso en CI por falta de checkout hermano de `argos-control`
+(`argos-validation@b55bc1a`, `argos-control@9af3f61`) — este segundo
+relevante para assurance porque confirma que el gate P0 local y el de
+CI eran, hasta entonces, propiedades DISTINTAS, no la misma verificada
+dos veces. (b) el hito M0 del calendario real
 (`governance/gates/gates.md`) es el **14 sep 2026** — este documento se
-genera el 2026-08-17, **antes** de esa fecha; (c) los "owners" declarados
-en cada `repository.yaml` son roles (`poa-architecture`,
-`delivery-lead`), no personas nombradas con una decisión de dotación
-real. Ninguna cantidad de código A→L cierra G0 — G0 no es una brecha de
-implementación.
+genera el 2026-08-17, y sigue siendo **antes** de esa fecha a
+2026-08-19; (c) los "owners" declarados en cada `repository.yaml` son
+roles (`poa-architecture`, `delivery-lead`), no personas nombradas con
+una decisión de dotación real. `G0` sigue `BLOCKED` por (b)/(c) — no
+por CI. Ninguna cantidad de código A→L cierra G0 — G0 no es una brecha
+de implementación.
 
 **Hallazgo más importante de esta reconciliación** (§5, Security
 Invariant Matrix): `SafetyEnvelope`/Independent Verifier son reales y
@@ -356,12 +368,15 @@ independiente, tal como exige la reconciliación (§14).
 | BLK-08 | Identidad de federación | PKI/certificados entre instancias | Nada | `EXTERNAL_FEDERATION_IDENTITY` | L |
 | BLK-09 | Pasarela cross-domain real | Infraestructura de red dedicada | `CrossDomainTransfer` lógico | `REAL_CROSS_DOMAIN_GATEWAY` | L |
 | BLK-10 | Sovereign Root of Trust / PKI | Autoridad de certificación operativa | Nada | Firma de runbooks/modelos/release, atestación runtime | Transversal (H/J/L) |
-| BLK-11 | GitHub Actions org-level | Configuración de Actions a nivel de organización | Validación local (`pytest`/`ruff`/`mypy` en este documento) | CI verde en 4/7 repos vía GitHub | **G0** |
+| ~~BLK-11~~ | ~~GitHub Actions org-level~~ | ~~Configuración de Actions a nivel de organización~~ | ~~Validación local (`pytest`/`ruff`/`mypy` en este documento)~~ | **RESUELTO 2026-08-19**: CI 7/7 GREEN, verificado run por run (ver §1/§13/§15) | ~~**G0**~~ |
 | BLK-12 | Cluster Kubernetes real | `ENV-QUAL-01` | `FakeClusterState`/`FakeReplicaState` | Ejecución/rollback contra infraestructura real, CP00/CP01/CP12 | G6 |
 
-No se inventan fechas de desbloqueo (regla explícita). `BLK-11` es el
+No se inventan fechas de desbloqueo (regla explícita). `BLK-11` era el
 único bajo control directo del usuario sin depender de aprovisionar
-infraestructura nueva — es también el que bloquea `G0` hoy.
+infraestructura nueva — resuelto 2026-08-19 (visibilidad de
+`argos-control`/`argos-contracts-scenarios` pasada a pública, dos bugs
+reales corregidos en el camino, ver §1). `G0` sigue `BLOCKED` por
+owners/calendario (§11), no por CI.
 
 ---
 
@@ -370,7 +385,7 @@ infraestructura nueva — es también el que bloquea `G0` hoy.
 | Gap | Severidad | Justificación |
 | --- | --- | --- |
 | `SafetyEnvelope`/Verifier no consumidos por `Gateway.authorize()` (§5) | **CRITICAL** | Invalida el claim de sistema "ninguna ejecución evita el Safety Kernel" — el fallback real (`target_allowlist`+`Approval`) es seguro pero es un camino DISTINTO al declarado por H/K.1 |
-| G0 bloqueado por CI org-level | **CRITICAL** (para G0, no para A→L) | Bloquea explícitamente el gate real, ya declarado como tal en `traceability.yaml` |
+| ~~G0 bloqueado por CI org-level~~ **RESUELTO 2026-08-19** | ~~**CRITICAL**~~ (era, para G0, no para A→L) | CI 7/7 GREEN confirmado run por run; `traceability.yaml` actualizado. `G0` sigue `BLOCKED` por owners/calendario (§11), causa distinta |
 | `CLAIM-009` obsoleto en assurance ledger | **MAJOR** (corregido en esta reconciliación) | Afirmaba `NOT_SUPPORTED` para Safety Kernel cuando ya existe código real — falso negativo, no falso positivo, pero igualmente una brecha de trazabilidad |
 | `maximum_outage` sin semántica de comparación activa | MINOR | Capturado, documentado como `KNOWN_GAP/DEFERRED_POLICY_SEMANTICS` desde Fase K, no oculto |
 | Firma criptográfica de evidencia/runbooks/release | EXTERNAL | Depende de PKI que no existe (`BLK-10`) |
@@ -405,13 +420,16 @@ infraestructura nueva — es también el que bloquea `G0` hoy.
 | Evidence baseline | ✓ | `EvidenceRoot`/`TransparencyLog` reales (local) | PSE | `AVAILABLE` (local) | — |
 | Autoridad de seguridad | ✗ | Sin QSO/SOC designado con nombre real | QSO | `NOT_EVALUATED` | — |
 | `DecisionRecord` de G0 | ✗ | No existe | POA | `NOT_EVALUATED` | — |
-| CI verde org-level | ✗ | `traceability.yaml`: 4/7 repos bloqueados | PSE | `BLOCKED` | `BLK-11` |
-| Calendario M0 | ✗ (futuro) | `gates.md`: M0 = 14 sep 2026; hoy 17 ago 2026 | POA | `NOT_YET_DUE` | — |
+| CI verde org-level | ✓ | 7/7 repos, verificado run por run vía API de GitHub 2026-08-19 (`traceability.yaml` actualizado) | PSE | `AVAILABLE` | — (era `BLK-11`, resuelto) |
+| Calendario M0 | ✗ (futuro) | `gates.md`: M0 = 14 sep 2026; hoy 19 ago 2026 (reevaluado) | POA | `NOT_YET_DUE` | — |
 
 **Veredicto G0**: `BLOCKED`. No por falta de código — por falta de
 insumos organizativos reales (owners nombrados, decisión de dotación,
-CI org-level verde) y porque el propio calendario del proyecto no ha
-llegado todavía a M0.
+autoridad de seguridad QSO/SOC, `DecisionRecord` de G0) y porque el
+propio calendario del proyecto no ha llegado todavía a M0. **CI
+org-level verde ya NO es una de las razones** (reevaluado 2026-08-19,
+ver §1/§9/§13) — se retira explícitamente de este veredicto, el resto
+de la lista se mantiene sin cambios.
 
 ---
 
@@ -450,7 +468,7 @@ mismo. Ver §15, Decisión final.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | ~~**R0-01**~~ | ~~`Gateway.authorize()` no consulta `SafetyEnvelope`/`VerificationResult`~~ **RESUELTO 2026-08-18** (`argos-cyber-tools@0d1316b`): `_check_safety_chain` exige SafetyEnvelope vigente+vinculado y VerificationResult=VERIFIED antes de `execute`, fail-closed, antes del chequeo de Approval; `mcp_gateway.controlled_execution.execute_with_authorization` conecta el gate con los 3 executors reales; test estructural prueba que ningún otro código los invoca. 129 tests (antes 99), ruff/mypy en verde. | — | — | — | — | `ARG-020`/`ARG-021`/`ARG-023` (mapeado retroactivamente: el defecto pertenecía al flujo de autorización/ejecución que esas historias ya poseen — decisión del usuario 2026-08-18, no se abre `ARG-030`) | — |
 | ~~**R0-01-RESIDUAL**~~ | ~~Binding de identidad de plan incompleto: `SafetyEnvelope`/`Approval` se validaban por el triple (tool, target, action), no por una identidad de plan compartida~~ **RECLASIFICADO A CRITICAL Y RESUELTO 2026-08-18** (`argos-cyber-tools@17e296a`): declarado inicialmente "no crítico" por inspección estática (§13 versión anterior) — el usuario pidió una sonda adversarial REAL antes de aceptar esa severidad (`tests/adversarial/test_r0_01_residual_incident_confusion.py`). La sonda EJECUTÓ el ataque (`executor_call_count == 1`, cluster real aislado) con una Approval firmada para el SafetyEnvelope de un incidente A, reutilizada bajo el SafetyEnvelope de un incidente B distinto sobre el mismo tool/target/action — confirmando CRITICAL, no MAJOR/MINOR, exactamente por la regla que fijó el usuario ("cualquier combinación cruzada ejecuta → CRITICAL/R0"). Corregido en el MISMO commit que la sonda (nunca se publicó un estado vulnerable): `Gateway.authorize()` vincula ahora `current_plan_hash` al `envelope_hash` del SafetyEnvelope de la solicitud (`params={"safety_envelope_hash": ...}`, sin inventar campos nuevos bajo `FEATURE_FREEZE_A_L`). 136 tests (antes 130), ruff/mypy en verde. | — | — | — | — | `ARG-023` (fix aplicado ya; hilo completo Safety Kernel→PolicyDecision→Approval para un llamante REAL sigue pendiente de ese ARG) | — |
-| **R0-02** | G0 bloqueado por CI org-level | Bloquea `G0` formalmente | G0 | Resolver configuración de GitHub Actions a nivel de organización (acción del usuario, fuera de este repo) | Bajo (config, no código) | — | — |
+| ~~**R0-02**~~ | ~~G0 bloqueado por CI org-level~~ **RESUELTO 2026-08-19**: CI 7/7 GREEN (`argos-cyber-tools@1154fc7`, `argos-validation@b55bc1a`/`3b412bf`, `argos-control@9af3f61`/`9615a1f`) — dos bugs reales cerrados en el camino (hash CRLF/LF del catálogo, `TRACE-01` sin checkout hermano en CI), no solo el cambio de visibilidad. `G0` sigue `BLOCKED` por owners/calendario (§11), causa distinta. | ~~Bloquea `G0` formalmente~~ | G0 | — | — | — | — |
 | R1-01 | `CLAIM-005` (AI sin credenciales) sin test automatizado que falle ante regresión | Deriva silenciosa si se añade un import prohibido | Assurance | Añadir check de arquitectura en CI (p. ej. `import-linter` o test que haga `ast`-grep) | Bajo | Ninguno | — |
 | R1-02 | `UNMAPPED_IMPLEMENTATION`: `ADR-053..067` sin ARG | Trazabilidad incompleta backlog↔ADR | Gobernanza | Decisión del usuario: A/B/C (§8) | — | — | `ARG-029+` si opción C |
 | R2-01 | `maximum_outage` sin semántica de comparación | Campo capturado pero inerte | Mission Context | Diseñar política de comparación cuando exista una fuente de misión real | Medio, depende de `BLK-06` | Ninguno | — |
@@ -499,12 +517,20 @@ argos-smartops             62f05ac6a2a5297d17d06036045781d6490448a1 main clean
 | argos-control | `scripts/validate.sh` | `validate OK` |
 | argos-control | `scripts/test.sh` | `test OK` (release-manifest schema, backlog IDs únicos, OSS registry, assurance ledger, AI component registry — todos auto-consistentes) |
 
-**Total tests Python**: 376 + 136 + 138 + 70 = **720**, todos en verde.
-**GitHub Actions (org-level)**: `NOT_EVALUATED` en esta reconciliación —
-`gh` CLI y acceso de red a `api.github.com` no disponibles en este
-entorno de ejecución; se reporta el último estado conocido y fechado
-(`traceability.yaml`, mismo día) en vez de asumir que sigue igual o que
-se resolvió: **4/7 repos bloqueados, "workflow was not found"** (`BLK-11`).
+**Total tests Python**: 376 + 136 + 138 + 70 = **720**, todos en verde
+(subieron desde entonces en repos individuales, ver `argos-validation`
+203/`argos-cyber-tools` 147 tras el trabajo de 2026-08-19, no
+reagregado aquí para no reescribir esta reconciliación fechada).
+**GitHub Actions (org-level)**: **RESUELTO 2026-08-19, `7/7 GREEN`**
+(era `NOT_EVALUATED` en esta reconciliación por falta de `gh`
+CLI/acceso de red; en la sesión siguiente se extrajo un token OAuth vía
+`git credential-manager` y se verificó cada run/job/step real contra la
+API de GitHub, no solo el `conclusion` agregado). Dos bugs reales
+encontrados y corregidos en el camino, no reruns oportunistas: hash de
+integridad del catálogo no reproducible entre Windows/Linux por
+CRLF/LF (`argos-cyber-tools@1154fc7`) y `TRACE-01` degradando en
+silencio a aviso en CI por falta de checkout hermano de `argos-control`
+(`argos-validation@b55bc1a`/`3b412bf`) — ver §1/§9/§13/§15.
 
 ---
 
@@ -518,13 +544,36 @@ READINESS OUTCOME: NOT_READY_FOR_V0_6_26_G0_EVIDENCE_UPDATE
 ```
 
 `G0` depende de insumos organizativos reales (owners nombrados,
-decisión de dotación, CI org-level, y un calendario que aún no llega a
-M0) que ningún volumen de código A→L puede sustituir. Esto **no es un
-fracaso** — es el estado real y verificado del proyecto. `A→L` puede
-legítimamente presentarse como evidencia técnica real (`V0626_INCLUDE`,
-§12) el día en que el mecanismo de versionado del proyecto decida
-cortar una versión, siempre que esa versión declare `G0=BLOCKED`
-explícitamente y no "G0 PASS".
+decisión de dotación, autoridad de seguridad QSO/SOC, `DecisionRecord`
+de G0, y un calendario que aún no llega a M0) que ningún volumen de
+código A→L puede sustituir. Esto **no es un fracaso** — es el estado
+real y verificado del proyecto. `A→L` puede legítimamente presentarse
+como evidencia técnica real (`V0626_INCLUDE`, §12) el día en que el
+mecanismo de versionado del proyecto decida cortar una versión, siempre
+que esa versión declare `G0=BLOCKED` explícitamente y no "G0 PASS".
+
+**Actualización 2026-08-19 — CI org-level RESUELTO, G0 reevaluado
+contra TODOS sus requisitos (no se cambia el veredicto solo porque un
+requisito se resolvió)**: `CI org-level` (`BLK-11`/`R0-02`) salió del
+registro de bloqueadores — 7/7 repos GREEN, verificado run por run vía
+la API de GitHub tras extraer un token OAuth real, no solo el
+`conclusion` agregado (ver §1/§9/§11/§13/§14). Dos bugs reales
+encontrados y corregidos en el camino (no reruns oportunistas): fallo
+de reproducibilidad del hash de integridad del catálogo por CRLF/LF
+(`argos-cyber-tools@1154fc7`), y `TRACE-01` degradando en silencio a
+aviso en CI por falta de checkout hermano de `argos-control`
+(`argos-validation@b55bc1a`/`3b412bf`, `argos-control@9af3f61`) — este
+segundo es evidencia de assurance real: confirma que "TRACE-01 local"
+y "TRACE-01 en CI" eran, hasta esa corrección, propiedades DISTINTAS,
+no la misma verificada dos veces. `G0_ACTIVATION_READINESS` **se
+mantiene `BLOCKED`** — reevaluado contra el resto de su matriz (§11),
+no cambiado automáticamente por un único requisito resuelto: owners
+nombrados, decisión de dotación FTE, autoridad de seguridad QSO/SOC,
+`DecisionRecord` de G0 y el calendario (M0 = 14 sep 2026, todavía
+futuro) siguen sin cumplirse. Como consecuencia de este incremento,
+IDLAB-05/06 v2 (`argos-validation@3b412bf`) queda declarado FROZEN:
+ningún cambio adicional de schema sin que lo justifique un dato real
+de laboratorio (bug/seguridad exceptuado) — ver `ADR-070` §11.
 
 **Hallazgo que requería acción antes de cualquier afirmación de
 seguridad de sistema** (independiente de G0): `R0-01` — el Safety
