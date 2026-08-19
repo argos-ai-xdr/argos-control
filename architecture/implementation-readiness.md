@@ -697,18 +697,18 @@ encuentra anomalías útiles?) y `E2` (WeakSignal→Global
 Investigator→ThreatAssessment: ¿el análisis global mejora esa señal?)
 — nunca mezcladas.
 
-### Versionado del Maestro Vivo — decisión pendiente del usuario, no tomada aquí
+### Versionado del Maestro Vivo — decidido 2026-08-19
 
-El próximo Word no debería generarse solo por este cierre documental
-salvo que el usuario quiera reflejar formalmente `CI 7/7` y estos
-commits. Dos opciones limpias planteadas por el usuario, ninguna
-elegida todavía: mantener `v0.6.25.8` como última baseline pre-G0 (los
-repos llevan la verdad incremental), o generar `v0.6.25.9` = "Evidence/
-Readiness Freeze" documentando exclusivamente CI 7/7, `BLK-11`/`R0-02`
-resuelto, `G0` sigue `BLOCKED` por motivos organizativos, IDLAB-05/06
-v2 frozen, `DATASET-01` pendiente de datos reales, sin detector, sin
-capacidades nuevas. **Ninguna se llama `v0.6.26`** — eso sigue
-requiriendo evidencia G0 real, no este cierre.
+Entre las dos opciones limpias planteadas (mantener `v0.6.25.8` vs.
+generar `v0.6.25.9` = "Evidence/Readiness Freeze"), el usuario eligió
+**mantener `v0.6.25.8`** como última baseline pre-`G0`: no se genera
+ningún Word nuevo por este cierre documental — es una etiqueta de
+referencia, no contenido nuevo. Los repos (este documento, `ADR-070`,
+`traceability.yaml`) llevan la verdad incremental desde aquí. Mismo
+patrón que los cierres anteriores de esta reconciliación (`R0-01`,
+`CH-07`, etc.): ninguno generó un Word nuevo por sí solo. **Ninguna
+versión se llama `v0.6.26`** — eso sigue requiriendo evidencia `G0`
+real, no este cierre.
 
 ---
 
