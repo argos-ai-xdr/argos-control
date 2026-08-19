@@ -703,11 +703,17 @@ Entre las dos opciones limpias planteadas (mantener `v0.6.25.8` vs.
 generar `v0.6.25.9` = "Evidence/Readiness Freeze"), el usuario eligió
 **mantener `v0.6.25.8`** como última baseline pre-`G0`: no se genera
 ningún Word nuevo por este cierre documental — es una etiqueta de
-referencia, no contenido nuevo. Los repos (este documento, `ADR-070`,
-`traceability.yaml`) llevan la verdad incremental desde aquí. Mismo
-patrón que los cierres anteriores de esta reconciliación (`R0-01`,
-`CH-07`, etc.): ninguno generó un Word nuevo por sí solo. **Ninguna
-versión se llama `v0.6.26`** — eso sigue requiriendo evidencia `G0`
+referencia, no contenido nuevo. **`v0.6.25.9` NUNCA llegó a
+generarse** — ni como documento Word (fuera del alcance de este
+repositorio) ni como contenido en ningún repo (verificado por grep en
+los 7: la única mención de la cadena `v0.6.25.9` en todo `argos-ai-xdr`
+es este párrafo, describiendo la opción NO elegida). No hay nada que
+deprecar ni ninguna referencia previa que sustituir. Los repos (este
+documento, `ADR-070`, `traceability.yaml`) llevan la verdad incremental
+desde aquí. Mismo patrón que los cierres anteriores de esta
+reconciliación (`R0-01`, `CH-07`, etc.): ninguno generó un Word nuevo
+por sí solo. **Ninguna versión se llama `v0.6.26`** — eso sigue
+requiriendo evidencia `G0`
 real, no este cierre.
 
 ---
