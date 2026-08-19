@@ -606,6 +606,112 @@ de hechos externa, no de conexión entre módulos.
 
 ---
 
+## 16. 2026-08-19 Freeze & Baseline Snapshot
+
+Punto de congelación coherente: ya no hay bloqueo técnico interno que
+justifique seguir añadiendo código o arquitectura. El siguiente avance
+real depende de evidencia EXTERNA (organizativa para `G0`, telemetría
+real para `IDLAB`), no de más desarrollo. Fotografía autoritativa de
+este momento — cada línea remite a la sección de este documento (o al
+repo) donde está la evidencia real, no una afirmación suelta:
+
+```text
+A_L_IMPLEMENTATION_READINESS = GREEN                          (§1)
+CI_7_OF_7                    = GREEN                          (§1, §9, §15)
+
+R0-01                        = CLOSED                         (§13, §15)
+R0-01-RESIDUAL                = CLOSED / REGRESSION-TESTED     (§13, §15)
+R0-02 / BLK-11                = CLOSED                         (§9, §13)
+
+CH-07 DURABLE APPROVAL ANTI-REPLAY
+                              = CLOSED / IMPLEMENTED_LOCALLY_AND_TESTED
+
+ADR-068 CHAOS ENGINEERING
+                              = IMPLEMENTED_LOCALLY_AND_TESTED
+                              = TARGET_EXECUTION PARTIAL/BLOCKED_EXTERNAL
+
+ADR-069 DETECTION ENGINEERING
+                              = IMPLEMENTED_LOCALLY_AND_TESTED
+                              = EXTERNAL_INTEGRATIONS PENDING
+
+ADR-070 INTELLIGENT DETECTION / IDLAB
+                              = IMPLEMENTED_LOCALLY at control/harness level
+                              = REAL_EXPERIMENT PENDING
+
+IDLAB-05/06 v2                = FROZEN
+DE-27                         = IMPLEMENTED + TESTED (6 checks)
+
+REAL_NOMINAL_BASELINE         = NOT_AVAILABLE (BLOCKED_EXTERNAL)
+REAL_GROUND_TRUTH             = NOT_AVAILABLE (BLOCKED_EXTERNAL)
+DATASET-01                    = NOT_CREATED
+
+STATISTICAL_DETECTION_MODEL   = NOT_IMPLEMENTED
+REAL_DETECTION_PERFORMANCE    = NOT_EVALUATED
+
+G0_ACTIVATION_READINESS       = BLOCKED (owners/dotación/QSO/DecisionRecord/M0 -- no CI)
+v0.6.26                       = NOT_READY
+```
+
+### Freeze declarado
+
+```text
+FEATURE_FREEZE                        = TRUE
+DATA_CONTRACT_FREEZE_IDLAB_05_06_V2   = TRUE
+```
+
+**Permitido**: bug fix; security fix; corrección de trazabilidad;
+evidencia real nueva; cambio de schema REQUERIDO por datos reales del
+laboratorio. **NO permitido todavía**: `ADR-071` por anticipación;
+nuevos schemas "por si acaso"; detector estadístico sin dataset;
+thresholds inventados; métricas sintéticas presentadas como
+rendimiento; entrenamiento de modelo sobre fixtures; ampliación
+artificial de IDLAB.
+
+### Dos caminos independientes, ninguno accionable desde este repositorio
+
+**Camino G0**: CI ya no forma parte del lenguaje de bloqueo — si se
+pregunta "¿qué falta para G0?", la respuesta debe citar EXCLUSIVAMENTE
+las condiciones que siguen abiertas (§11: owners nombrados, dotación/
+FTE, QSO, `DecisionRecord`, calendario/M0). Cuando llegue cualquiera de
+esos insumos, la regla es una **reconciliación G0 puntual contra la
+matriz completa (§11)**, nunca un PASS asumido por un solo insumo
+resuelto — el resultado es `READY_FOR_V0_6_26_G0_EVIDENCE_UPDATE` o
+`BLOCKED` con el motivo restante, decidido en esa reconciliación, no
+aquí por anticipación.
+
+**Camino IDLAB**: `IDLAB-01..04` (infraestructura real) → telemetría
+nominal real → `IDLAB-05` → `NominalBaselineManifest v2` →
+`contamination_check` → `DE-27` → `BASELINE-01` → campañas reales
+etiquetadas → `IDLAB-06` → `DetectionGroundTruthManifest v2` → `DE-27`
+→ `GROUND-TRUTH-01` → `DATASET-01` → `EvidenceManifest` →
+`EvidenceRoot` → freeze. Si `contamination_check` falla, el baseline se
+RECHAZA (`BASELINE REJECTED`) — nunca se "limpia" y reetiqueta en
+silencio; se corrige la captura y se genera otra. Ese es el punto donde
+vuelve a escribirse código de detección — no antes.
+
+Al llegar `DATASET-01`, y solo entonces, se materializa
+`DetectionEvaluationProtocol v1` (documentado en `ADR-070`, no
+implementado) ANTES de entrenar el primer candidato, y se distinguen
+formalmente `E1` (Statistical Detector→WeakSignal: ¿el detector
+encuentra anomalías útiles?) y `E2` (WeakSignal→Global
+Investigator→ThreatAssessment: ¿el análisis global mejora esa señal?)
+— nunca mezcladas.
+
+### Versionado del Maestro Vivo — decisión pendiente del usuario, no tomada aquí
+
+El próximo Word no debería generarse solo por este cierre documental
+salvo que el usuario quiera reflejar formalmente `CI 7/7` y estos
+commits. Dos opciones limpias planteadas por el usuario, ninguna
+elegida todavía: mantener `v0.6.25.8` como última baseline pre-G0 (los
+repos llevan la verdad incremental), o generar `v0.6.25.9` = "Evidence/
+Readiness Freeze" documentando exclusivamente CI 7/7, `BLK-11`/`R0-02`
+resuelto, `G0` sigue `BLOCKED` por motivos organizativos, IDLAB-05/06
+v2 frozen, `DATASET-01` pendiente de datos reales, sin detector, sin
+capacidades nuevas. **Ninguna se llama `v0.6.26`** — eso sigue
+requiriendo evidencia G0 real, no este cierre.
+
+---
+
 ## STOP
 
 Esta reconciliación no crea Fase M, no crea `ARG-029+`, no genera
